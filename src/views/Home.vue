@@ -7,10 +7,10 @@
 
 <script>
 
-import { ref, reactive, computed, onMounted, onBeforeMount } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeMount, defineComponent } from 'vue'
 import navigator from '@/components/navigator.vue'
 
-export default {
+export default defineComponent({
   name: 'Home',
   components: {
     navigator
@@ -20,5 +20,5 @@ export default {
 
     }
   }
-}
+})
 </script>

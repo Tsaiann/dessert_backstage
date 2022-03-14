@@ -1,9 +1,9 @@
 .navigator{
-  width: 250px;
+  width: 300px;
   h2{
     background: #e0e0e0;
-    height: 50px;
-    line-height: 2.5;
+    height: 60px;
+    line-height: 3;
     font-size: 18px;
     width: 100%;
     text-align: center;
@@ -14,7 +14,7 @@
     background: #ffeaed;
     li{
       width: 100%;
-      line-height: 3;
+      line-height: 3.5;
       text-align: center;
       cursor: pointer;
       &:hover{

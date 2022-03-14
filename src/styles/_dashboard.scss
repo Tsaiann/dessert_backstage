@@ -1,3 +1,13 @@
 .dashboard{
   width: 100%;
+  .content{
+    padding: 30px;
+    .el-date-editor--daterange.el-input__inner{
+      width: 500px;
+    }
+    h2{
+      font-size: 24px;
+      font-weight: normal;
+    }
+  }
 }
