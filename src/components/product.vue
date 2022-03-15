@@ -1,21 +1,125 @@
 <template>
-  <div class="product">
+  <div class="product row vertical">
     <guideLine msg="商品管理" />
+    <div class="content row vertical">
+      <div class="productState" data-space-bottom="2rem">
+        <div class="row horizontal v_center">
+          <span data-space-left="1rem">商品分類：</span>
+          <el-select v-model="products" placeholder="Select" size="small" data-space-left="1rem" width="30">
+            <el-option
+              v-for="item in productsList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+          <span data-space-left="1rem">商品名稱：</span>
+          <div data-width="40%">
+            <el-input v-model="input" placeholder="請輸入商品名稱" clearable size="small"/>
+          </div>
+        </div>
+        <div class="row horizontal h_end" data-width="30%" data-space-right="1rem">
+          <el-button type="info" plain size="small">重置</el-button>
+          <el-button type="info"  data-space-left="0.5rem" size="small">搜尋</el-button>
+        </div>
+      </div>
+      <div class="productData">
+        <div class="row horizontal v_center" data-space-bottom="1rem">
+          <div class="row horizontal v_center">
+            <span>每頁筆數：</span>
+             <el-select v-model="pagination" placeholder="Select" size="small">
+              <el-option
+                v-for="item in productPagination"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+            <el-pagination
+              :page-size="20"
+              :pager-count="11"
+              layout="prev, pager, next"
+              :total="1000"
+              data-space-left="1rem"
+            ></el-pagination>
+          </div>
+          <div class="row horizontal h_end" data-width="15%">
+            <el-button type="info" size="small">分類管理</el-button>
+            <el-button type="info"  data-space-left="0.5rem" size="small">新增商品 ＋</el-button>
+          </div>
+        </div>
+        <div class="tableData">
+          <el-table :data="tableData" >
+            <el-table-column prop="id" label="id" width="100"/>
+            <el-table-column prop="name" label="商品名稱" width="250"/>
+            <el-table-column prop="img" label="商品圖片" />
+            <el-table-column prop="show" label="前台顯示" width="200"/>
+            <el-table-column prop="" label="操作" width="150"/>
+          </el-table>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import guideLine from '@/components/guideLine.vue'
+import { ref, reactive, defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
   name:'Product',
   components:{
     guideLine
   },
   setup(){
+    const products = ref( '全部' )
+    let input= ref('')
+    const productsList = [
+      {
+        value: 1,
+        label: '全部',
+      },
+      {
+        value: 2,
+        label: '馬卡龍',
+      },
+      {
+        value: 3,
+        label: '戚風蛋糕',
+      },
+      {
+        value: 4,
+        label: '杯子蛋糕',
+      },
+      {
+        value: 5,
+        label: '其他',
+      }
+    ]
+    const productPagination = [
+      {
+        value: 1,
+        label: '5',
+      },
+      {
+        value: 2,
+        label: '10',
+      },
+      {
+        value: 3,
+        label: '15',
+      },
+      {
+        value: 4,
+        label: '20',
+      }
+    ]
     return{
-      
+      products,
+      input,
+      productsList,
+      productPagination
     }
   }
-}
+})
 </script>

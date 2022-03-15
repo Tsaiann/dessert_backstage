@@ -3,7 +3,7 @@
     <guideLine msg="訂單管理" />
     <div class="content row vertical h_center">
       <div class="orderState" data-space-bottom="2rem">
-        <span class="demonstration" data-space-right="0.5rem">日期區間：</span>
+        <span data-space-right="0.5rem">日期區間：</span>
         <el-date-picker
           v-model="timeValue"
           type="daterange"
@@ -53,16 +53,16 @@
             ></el-pagination>
         </div>
         <div class="tableData">
-          <el-table :data="tableData" style="width: 100%">
+          <el-table :data="tableData" >
             <el-table-column prop="id" label="id" width="50"/>
-            <el-table-column prop="name" label="商品名稱" width="150"/>
+            <el-table-column prop="name" label="商品名稱" width="170"/>
             <el-table-column prop="count" label="數量" />
             <el-table-column prop="member" label="會員" width="150" />
             <el-table-column prop="price" label="金額" />
             <el-table-column prop="orderState" label="訂單狀態" />
             <el-table-column prop="deliverState" label="出貨狀態" />
             <el-table-column prop="date" label="訂單日期" width="150"/>
-            <el-table-column prop="" label="操作" width="150"/>
+            <el-table-column prop="" label="操作" width="100"/>
           </el-table>
         </div>
       </div>
