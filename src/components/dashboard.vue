@@ -3,7 +3,7 @@
     <guideLine msg="Dashboard" />
     <div class="content">
       <div class="row horizontal v_center" data-space-bottom="3rem">
-        <span class="demonstration" data-space-right="0.5rem">日期區間：</span>
+        <span data-space-right="0.5rem">日期區間：</span>
         <el-date-picker
           v-model="value"
           type="daterange"
@@ -19,7 +19,13 @@
         <span></span>
       </div>
       <div class="itemTotal">
-        <h2>各項商品銷售總數:</h2>
+        <h2 data-space-bottom="2rem">各項商品銷售總數:</h2>
+        <div class="row horizontal">
+          <div v-for="item in cakeItem" :key="item" class="row vertical">
+            <p data-space-bottom="1rem">{{ item.name }}</p>
+            <span>{{ item.count }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -36,8 +42,27 @@ export default defineComponent({
   },
   setup(){
     const value = ref('')
+    const cakeItem = reactive([
+      {
+        name:'戚風蛋糕',
+        count:1
+      },
+      {
+        name:'杯子蛋糕',
+        count:2
+      },
+      {
+        name:'馬卡龍',
+        count:3
+      },
+      {
+        name:'其他',
+        count:4
+      }
+    ])
     return{
-      value
+      value,
+      cakeItem
     }
   }
 })

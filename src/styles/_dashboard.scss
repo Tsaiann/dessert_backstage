@@ -9,5 +9,15 @@
       font-size: 24px;
       font-weight: normal;
     }
+    .itemTotal{
+      div{
+        min-width: 170px;
+        width: 80%;
+      }
+      span{
+        border: 1px solid #000;
+        padding: 50px 70px;
+      }
+    }
   }
 }
