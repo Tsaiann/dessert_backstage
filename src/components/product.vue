@@ -27,7 +27,7 @@
         <div class="row horizontal v_center" data-space-bottom="1rem">
           <div class="row horizontal v_center">
             <span>每頁筆數：</span>
-             <el-select v-model="pagination" placeholder="Select" size="small">
+             <el-select v-model="pagination" size="small">
               <el-option
                 v-for="item in productPagination"
                 :key="item.value"
@@ -41,20 +41,29 @@
               layout="prev, pager, next"
               :total="1000"
               data-space-left="1rem"
+              width="900"
             ></el-pagination>
           </div>
           <div class="row horizontal h_end" data-width="15%">
-            <el-button type="info" size="small">分類管理</el-button>
-            <el-button type="info"  data-space-left="0.5rem" size="small">新增商品 ＋</el-button>
+            <el-button type="primary" plain size="small">分類管理</el-button>
+            <el-button type="primary"  data-space-left="0.5rem" size="small">新增商品 ＋</el-button>
           </div>
         </div>
         <div class="tableData">
           <el-table :data="tableData" >
-            <el-table-column prop="id" label="id" width="100"/>
-            <el-table-column prop="name" label="商品名稱" width="250"/>
-            <el-table-column prop="img" label="商品圖片" />
+            <el-table-column prop="id" label="id" width="60"/>
+            <el-table-column prop="name" label="商品名稱" width="200"/>
+             <el-table-column prop="type" label="商品分類" width="150"/>
+            <el-table-column prop="img" label="商品圖片" width="250"/>
             <el-table-column prop="show" label="前台顯示" width="200"/>
-            <el-table-column prop="" label="操作" width="150"/>
+            <el-table-column label="操作" width="270">
+              <template #default>
+                <div class="row horizontal center">
+                  <el-button type="warning" plain size="small">查看/修改</el-button>
+                  <el-button type="danger" plain size="small">刪除</el-button>
+                </div>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </div>
@@ -74,6 +83,7 @@ export default defineComponent({
   setup(){
     const products = ref( '全部' )
     let input= ref('')
+    const pagination =ref('20')
     const productsList = [
       {
         value: 1,
@@ -114,11 +124,29 @@ export default defineComponent({
         label: '20',
       }
     ]
+    const tableData=[
+    {
+      id:'1',
+      name:'草莓戚風蛋糕',
+      type:'戚風蛋糕',
+      img:'',
+      show:'是',
+    },
+    {
+      id:'2',
+      name:'伯爵香蕉戚風蛋糕',
+      type:'戚風蛋糕',
+      img:'',
+      show:'是',
+    },
+    ]
     return{
       products,
       input,
       productsList,
-      productPagination
+      productPagination,
+      pagination,
+      tableData
     }
   }
 })

@@ -36,7 +36,7 @@
       <div class="orderData">
         <div class="row horizontal v_center" data-space-bottom="1rem">
             <span>每頁筆數：</span>
-             <el-select v-model="pagination" placeholder="Select" size="small">
+             <el-select v-model="pagination" size="small">
               <el-option
                 v-for="item in orderPagination"
                 :key="item.value"
@@ -54,15 +54,22 @@
         </div>
         <div class="tableData">
           <el-table :data="tableData" >
-            <el-table-column prop="id" label="id" width="50"/>
-            <el-table-column prop="name" label="商品名稱" width="170"/>
-            <el-table-column prop="count" label="數量" />
-            <el-table-column prop="member" label="會員" width="150" />
-            <el-table-column prop="price" label="金額" />
-            <el-table-column prop="orderState" label="訂單狀態" />
-            <el-table-column prop="deliverState" label="出貨狀態" />
-            <el-table-column prop="date" label="訂單日期" width="150"/>
-            <el-table-column prop="" label="操作" width="100"/>
+            <el-table-column prop="id" label="id" width="70"/>
+            <el-table-column prop="name" label="商品名稱" width="160"/>
+            <el-table-column prop="count" label="數量" width="65"/>
+            <el-table-column prop="member" label="會員" width="200" />
+            <el-table-column prop="price" label="金額" width="100"/>
+            <el-table-column prop="orderState" label="訂單狀態" width="100"/>
+            <el-table-column prop="deliverState" label="出貨狀態" width="100"/>
+            <el-table-column prop="date" label="訂單日期" width="130"/>
+            <el-table-column id="operate" label="操作" width="200">
+              <template #default>
+                <div class="row horizontal center">
+                  <el-button type="warning" plain size="small">查看/修改</el-button>
+                  <el-button type="danger" plain size="small">刪除</el-button>
+                </div>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </div>
@@ -134,6 +141,28 @@ export default defineComponent({
         label: '20',
       }
     ]
+    const tableData=[
+    {
+      id:'2324',
+      name:'馬卡龍禮盒',
+      count:'1',
+      member:'adfasf4@gmail.com',
+      price:'560',
+      orderState:'已完成',
+      deliverState:'已出貨',
+      date:'2022-01-25'
+    },
+    {
+      id:'4534',
+      name:'馬卡龍禮盒',
+      count:'2',
+      member:'adfasf4@gmail.com',
+      price:'1120',
+      orderState:'已完成',
+      deliverState:'已出貨',
+      date:'2022-01-21'
+    },
+    ]
     return{
       timeValue,
       deliver,
@@ -141,7 +170,8 @@ export default defineComponent({
       pagination,
       orderList,
       deliverList,
-      orderPagination
+      orderPagination,
+      tableData
     }
   }
 })
