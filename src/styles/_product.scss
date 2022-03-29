@@ -34,5 +34,30 @@
         --el-button-background-color: #c8c9cc;
       }
     }
+    .el-dialog{
+      &__header{
+        border-bottom: 1px solid #000;
+        width: 83%;
+        margin: auto;
+      }
+      &__body{
+        padding: 20px 20px 10px 20px;
+      }
+      .el-form-item{
+        margin-bottom: 10px;
+        &__content{
+          @include flexBox(row,center,flex-start);
+          .el-select{
+            margin-right: 10px;
+          }
+        }
+        &__label{
+          width: 90px;
+        }
+      }
+      .el-input{
+        width: 170px;
+      }
+    }
   } 
 }

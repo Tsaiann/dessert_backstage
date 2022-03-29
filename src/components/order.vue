@@ -1,37 +1,41 @@
 <template>
   <div class="order row vertical">
     <guideLine msg="訂單管理" />
-    <div class="content row vertical h_center">
+    <div class="content row vertical">
       <div class="orderState" data-space-bottom="2rem">
-        <span data-space-right="0.5rem">日期區間：</span>
-        <el-date-picker
-          v-model="timeValue"
-          type="daterange"
-          start-placeholder="開始日期"
-          end-placeholder="結束日期"
-          :default-value="[new Date(2022, 1, 1), new Date(2022, 2, 1)]"
-          size="small"
-        ></el-date-picker>
-        <span data-space-left="1rem">訂單狀態：</span>
-        <el-select v-model="order" placeholder="Select" size="small">
-          <el-option
-            v-for="item in orderList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-        <span data-space-left="1rem">出貨狀態：</span>
-        <el-select v-model="deliver" placeholder="Select" size="small">
-          <el-option
-            v-for="item in deliverList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-        <el-button type="info" plain data-space-left="2rem" size="small">重置</el-button>
-        <el-button type="info"  data-space-left="0.5rem" size="small">搜尋</el-button>
+        <div>
+          <span data-space-left="1rem">日期區間：</span>
+          <el-date-picker
+            v-model="timeValue"
+            type="daterange"
+            start-placeholder="開始日期"
+            end-placeholder="結束日期"
+            :default-value="[new Date(2022, 1, 1), new Date(2022, 2, 1)]"
+            size="small"
+          ></el-date-picker>
+          <span data-space-left="1rem">訂單狀態：</span>
+          <el-select v-model="order" placeholder="Select" size="small">
+            <el-option
+              v-for="item in orderList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+          <span data-space-left="1rem">出貨狀態：</span>
+          <el-select v-model="deliver" placeholder="Select" size="small">
+            <el-option
+              v-for="item in deliverList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </div>
+        <div>
+          <el-button type="info" plain data-space-left="2rem" size="small">重置</el-button>
+          <el-button type="info"  data-space-right="1rem" size="small">搜尋</el-button>
+        </div>
       </div>
       <div class="orderData">
         <div class="row horizontal v_center" data-space-bottom="1rem">
@@ -65,7 +69,65 @@
             <el-table-column id="operate" label="操作" width="200">
               <template #default>
                 <div class="row horizontal center">
-                  <el-button type="warning" plain size="small">查看/修改</el-button>
+                  <el-button type="warning" plain size="small" @click="dialogVisible = true">查看/修改</el-button>
+                  <el-dialog v-model="dialogVisible" title="查看/修改訂單" width="500px">
+                    <el-form :model="orderForm">
+                      <el-form-item label="訂單日期：">
+                        <p>{{orderForm.date}}</p>
+                      </el-form-item>
+                      <el-form-item label="購買會員：">
+                        <p>{{orderForm.member}}</p>
+                      </el-form-item>
+                      <el-form-item label="優惠券：">
+                        <p>{{orderForm.discount}}</p>
+                      </el-form-item>
+                      <el-form-item label="商品名稱：" label-width="140">
+                        <el-select v-model="orderForm.type" placeholder="請選擇" size="small">
+                          <el-option label="馬卡龍" value="1" />
+                          <el-option label="戚風蛋糕" value="2" />
+                          <el-option label="杯子蛋糕" value="3" />
+                          <el-option label="其他" value="4" />
+                        </el-select>
+                        <el-select v-model="orderForm.name" placeholder="請選擇" size="small">
+                          <el-option label="馬卡龍禮盒(8入)" value="1" />
+                        </el-select>
+                      </el-form-item>
+                      <el-form-item label="數量：">
+                        <el-input v-model="orderForm.count" autocomplete="off" size="small"/>
+                      </el-form-item>
+                      <el-form-item label="商品規格：">
+                        
+                      </el-form-item>
+                      <el-form-item label="出貨狀況：" label-width="140">
+                        <el-select v-model="orderForm.deliverState" placeholder="請選擇" size="small">
+                          <el-option label="未出貨" value="1" />
+                          <el-option label="已出貨" value="2" />
+                        </el-select>
+                      </el-form-item>
+                      <el-form-item label="訂單狀況：" label-width="140">
+                        <el-select v-model="orderForm.orderState" placeholder="請選擇" size="small">
+                          <el-option label="未完成" value="1" />
+                          <el-option label="已完成" value="2" />
+                          <el-option label="取消訂單" value="3" />
+                        </el-select>
+                      </el-form-item>
+                      <el-form-item label="總金額：">
+                        <p>{{orderForm.total}}</p>
+                      </el-form-item>
+                      <el-form-item label="備註：">
+                        <p>{{orderForm.remark}}</p>
+                      </el-form-item>
+                    </el-form>
+                    <hr/>
+                    <template #footer>
+                      <span class="dialog-footer">
+                        <el-button @click="dialogVisible = false">取消</el-button>
+                        <el-button type="primary" @click="dialogVisible = false"
+                          >確定更改</el-button
+                        >
+                      </span>
+                    </template>
+                  </el-dialog>
                   <el-button type="danger" plain size="small">刪除</el-button>
                 </div>
               </template>
@@ -80,6 +142,7 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ref, reactive, defineComponent } from 'vue'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name:'Order',
@@ -91,6 +154,9 @@ export default defineComponent({
     const deliver = ref( '全部' )
     const order = ref( '全部' )
     const pagination =ref('20')
+    const dialogVisible = ref(false)
+    const store = useStore()
+    const backstageApi = store.state.backstageApi
     const orderList = [
       {
         value: 1,
@@ -163,6 +229,18 @@ export default defineComponent({
       date:'2022-01-21'
     },
     ]
+    const orderForm = reactive({
+      date: '',
+      member: '',
+      discount: '',
+      name: '',
+      count:'',
+      type: [],
+      deliverState: '',
+      orderState: '',
+      total:'',
+      remark:''
+    })
     return{
       timeValue,
       deliver,
@@ -171,7 +249,9 @@ export default defineComponent({
       orderList,
       deliverList,
       orderPagination,
-      tableData
+      tableData,
+      dialogVisible,
+      orderForm
     }
   }
 })

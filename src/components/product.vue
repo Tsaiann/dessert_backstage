@@ -46,7 +46,59 @@
           </div>
           <div class="row horizontal h_end" data-width="15%">
             <el-button type="primary" plain size="small">分類管理</el-button>
-            <el-button type="primary"  data-space-left="0.5rem" size="small">新增商品 ＋</el-button>
+            <el-button type="primary"  data-space-left="0.5rem" size="small" @click="dialogVisible = true">新增商品 ＋</el-button>
+            <el-dialog v-model="dialogVisible" title="新增商品" width="500px">
+              <el-form :model="productAddForm">
+                <el-form-item label="前台顯示：">
+                  <el-radio v-model="checked" label="1">是</el-radio>
+                  <el-radio v-model="checked" label="2">否</el-radio>
+                </el-form-item>
+                <el-form-item label="分類：">
+                  <el-select v-model="productAddForm.deliverState" placeholder="請選擇" size="small">
+                    <el-option label="杯子蛋糕" value="1" />
+                    <el-option label="戚風蛋糕" value="2" />
+                    <el-option label="馬卡龍" value="3" />
+                    <el-option label="其他" value="4" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="名稱：">
+                  <el-input v-model="productAddForm.name" autocomplete="off" size="small"/>
+                </el-form-item>
+                <el-form-item label="商品規格：">
+                  
+                </el-form-item>
+                <el-form-item label="金額：">
+                  <el-input v-model="productAddForm.price" autocomplete="off" size="small"/>
+                </el-form-item>
+                <el-form-item label="圖片上傳：">
+                  <el-upload
+                    class="upload-demo"
+                  >
+                    <el-button type="primary">上傳圖片</el-button>
+                    <template #tip>
+                      <div class="el-upload__tip">
+                        jpg/png files with a size less than 500KB.
+                      </div>
+                    </template>
+                  </el-upload>
+                </el-form-item>
+                <el-form-item label="商品說明：">
+                  <el-input
+                    v-model="textarea"
+                    type="textarea"
+                    placeholder="請輸入內容"
+                  />
+                </el-form-item>
+              </el-form>
+              <hr/>
+              <template #footer>
+                <span class="dialog-footer">
+                  <el-button @click="dialogVisible = false">取消</el-button>
+                  <el-button type="primary" @click="dialogFormVisible = false"
+                    >確定新增</el-button>
+                </span>
+              </template>
+            </el-dialog>
           </div>
         </div>
         <div class="tableData">
@@ -84,6 +136,9 @@ export default defineComponent({
     const products = ref( '全部' )
     let input= ref('')
     const pagination =ref('20')
+    const dialogVisible=ref(false)
+    const checked = ref('1')
+    const textarea= ref('')
     const productsList = [
       {
         value: 1,
@@ -140,13 +195,25 @@ export default defineComponent({
       show:'是',
     },
     ]
+    const productAddForm = reactive({
+      display: '',
+      type: [],
+      name: '',
+      price:'',
+      img: '',
+      productDescribe: '',
+    })
     return{
       products,
       input,
       productsList,
       productPagination,
       pagination,
-      tableData
+      tableData,
+      dialogVisible,
+      checked,
+      productAddForm,
+      textarea
     }
   }
 })

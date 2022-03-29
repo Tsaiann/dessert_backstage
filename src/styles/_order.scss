@@ -1,13 +1,14 @@
 .order{
   width: 100%;
   height: 100%;
+  min-width: 1100px;
   .content{
     padding: 30px;
     min-width: 800px;
     width: 100%;
     height: 100%;
     .orderState{
-      @include flexBox(row, center, center);
+      @include flexBox(row, center, space-between);
       font-size: 14px;
       width: 100%;
       border: 1px solid #000;
@@ -30,6 +31,32 @@
         .el-table_1_column_9{
           text-align: center;
         }
+      }
+    }
+    .el-dialog{
+      &__header{
+        border-bottom: 1px solid #000;
+        width: 92%;
+        margin: auto;
+        padding: 20px 20px 10px 5px;
+      }
+      &__body{
+        padding: 20px 20px 10px 20px;
+      }
+      .el-form-item{
+        margin-bottom: 5px;
+        &__content{
+          @include flexBox(row,center,flex-start);
+          .el-select{
+            margin-right: 5px;
+          }
+        }
+        &__label{
+          width: 90px;
+        }
+      }
+      .el-input{
+        width: 170px;
       }
     }
   }
