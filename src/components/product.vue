@@ -45,9 +45,34 @@
             ></el-pagination>
           </div>
           <div class="row horizontal h_end" data-width="15%">
-            <el-button type="primary" plain size="small">分類管理</el-button>
-            <el-button type="primary"  data-space-left="0.5rem" size="small" @click="dialogVisible = true">新增商品 ＋</el-button>
-            <el-dialog v-model="dialogVisible" title="新增商品" width="500px">
+            <el-button type="primary" plain size="small" @click="dialogTypeVisible = true">分類管理</el-button>
+            <el-dialog v-model="dialogTypeVisible" title="分類管理" width="500px">
+              <el-form :model="productTypeForm">
+                <el-form-item label="新增分類：">
+                  <el-input size="small" placeholder="請輸入新增分類"/>
+                  <el-button type="info"  data-space-left="0.5rem" size="small">新增</el-button>
+                </el-form-item>
+                <el-table :data="typeTableData">
+                  <el-table-column prop="id" label="id" width="80"/>
+                  <el-table-column prop="name" label="分類名稱" width="200"/>
+                  <el-table-column label="操作">
+                    <template #default>
+                      <el-button type="danger" plain size="small">刪除</el-button>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-form>
+              <hr/>
+              <template #footer>
+                <span class="dialog-footer">
+                  <el-button @click="dialogTypeVisible = false">取消</el-button>
+                  <el-button type="primary" @click="dialogTypeVisible = false"
+                    >確定</el-button>
+                </span>
+              </template>
+            </el-dialog>
+            <el-button type="primary"  data-space-left="0.5rem" size="small" @click="dialogProductVisible = true">新增商品 ＋</el-button>
+            <el-dialog v-model="dialogProductVisible" title="新增商品" width="500px">
               <el-form :model="productAddForm">
                 <el-form-item label="前台顯示：">
                   <el-radio v-model="checked" label="1">是</el-radio>
@@ -93,8 +118,8 @@
               <hr/>
               <template #footer>
                 <span class="dialog-footer">
-                  <el-button @click="dialogVisible = false">取消</el-button>
-                  <el-button type="primary" @click="dialogFormVisible = false"
+                  <el-button @click="dialogProductVisible = false">取消</el-button>
+                  <el-button type="primary" @click="dialogProductVisible = false"
                     >確定新增</el-button>
                 </span>
               </template>
@@ -105,14 +130,14 @@
           <el-table :data="tableData" >
             <el-table-column prop="id" label="id" width="60"/>
             <el-table-column prop="name" label="商品名稱" width="200"/>
-             <el-table-column prop="type" label="商品分類" width="150"/>
+            <el-table-column prop="type" label="商品分類" width="150"/>
             <el-table-column prop="img" label="商品圖片" width="250"/>
             <el-table-column prop="show" label="前台顯示" width="200"/>
             <el-table-column label="操作" width="270">
               <template #default>
                 <div class="row horizontal center">
-                  <el-button type="warning" plain size="small">查看/修改</el-button>
-                  <el-button type="danger" plain size="small">刪除</el-button>
+                  <el-button type="warning" plain size="small" @click="dialogProductVisible = true">查看/修改</el-button>
+                  <el-button type="danger" plain size="small" @click="deleteProduct">刪除</el-button>
                 </div>
               </template>
             </el-table-column>
@@ -125,6 +150,7 @@
 
 <script>
 import guideLine from '@/components/guideLine.vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive, defineComponent } from 'vue'
 
 export default defineComponent({
@@ -136,7 +162,8 @@ export default defineComponent({
     const products = ref( '全部' )
     let input= ref('')
     const pagination =ref('20')
-    const dialogVisible=ref(false)
+    const dialogProductVisible=ref(false)
+    const dialogTypeVisible=ref(false)
     const checked = ref('1')
     const textarea= ref('')
     const productsList = [
@@ -203,6 +230,29 @@ export default defineComponent({
       img: '',
       productDescribe: '',
     })
+    const deleteProduct = () => {
+      ElMessageBox.confirm(
+        '確定要刪除資料？',
+        '警告',
+        {
+          confirmButtonText: '確定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(() => {
+          ElMessage({
+            type: 'success',
+            message: '已刪除資料',
+          })
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消刪除',
+          })
+        })
+    }
     return{
       products,
       input,
@@ -210,10 +260,12 @@ export default defineComponent({
       productPagination,
       pagination,
       tableData,
-      dialogVisible,
+      dialogProductVisible,
+      dialogTypeVisible,
       checked,
       productAddForm,
-      textarea
+      textarea,
+      deleteProduct
     }
   }
 })

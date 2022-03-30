@@ -55,8 +55,41 @@
             <el-table-column label="操作" width="200">
               <template #default>
                 <div class="row horizontal center">
-                  <el-button type="warning" plain size="small">查看</el-button>
-                  <el-button type="danger" plain size="small">刪除</el-button>
+                  <el-button type="warning" plain size="small" @click="dialogUserVisible = true">查看</el-button>
+                  <el-dialog v-model="dialogUserVisible" title="查看會員" width="500px">
+                    <el-form :model="UserForm">
+                      <el-form-item label="會員姓名：">
+                        <p></p>
+                      </el-form-item>
+                      <el-form-item label="帳號/信箱：">
+                        <p></p>
+                      </el-form-item>
+                      <el-form-item label="會員等級：">
+                        <p></p>
+                      </el-form-item>
+                      <el-form-item label="收藏清單：">
+                        <p></p>
+                      </el-form-item>
+                      <el-pagination
+                        :page-size="10"
+                        :pager-count="11"
+                        layout="prev, pager, next"
+                        :total="100"
+                      ></el-pagination>
+                      <el-table :data="userTableData">
+                        <el-table-column prop="id" label="id" width="80"/>
+                        <el-table-column prop="name" label="商品名稱" width="200"/>
+                        <el-table-column prop="type" label="商品分類" />
+                      </el-table>
+                    </el-form>
+                    <hr/>
+                    <template #footer>
+                      <span class="dialog-footer">
+                        <el-button @click="dialogUserVisible = false">關閉</el-button>
+                      </span>
+                    </template>
+                  </el-dialog>
+                  <el-button type="danger" plain size="small" @click="deleteUser" data-space-left="0.5rem">刪除</el-button>
                 </div>
               </template>
             </el-table-column>
@@ -69,6 +102,7 @@
 
 <script>
 import guideLine from '@/components/guideLine.vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive, defineComponent } from 'vue'
 
 export default defineComponent({
@@ -79,6 +113,7 @@ export default defineComponent({
   setup(){
     const userGrade =ref('全部')
     const pagination =ref('20')
+    const dialogUserVisible =ref(false)
     const userList = [
       {
         value: 1,
@@ -129,12 +164,52 @@ export default defineComponent({
       grade:'銅級會員',
     }
     ]
+    const userForm = reactive({
+      name: '',
+      account: '',
+      level:'',
+      collect:''
+    })
+    const userTableData=[
+    {
+      id:'2324',
+      name:'馬卡龍禮盒',
+      type:'馬卡龍'
+    }
+    ]
+    const deleteUser = () => {
+      ElMessageBox.confirm(
+        '確定要刪除會員資料？',
+        '警告',
+        {
+          confirmButtonText: '確定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(() => {
+          ElMessage({
+            type: 'success',
+            message: '已刪除資料',
+          })
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消刪除',
+          })
+        })
+    }
     return{
       userGrade,
       userList,
       tableData,
       pagination,
-      userPagination
+      userPagination,
+      deleteUser,
+      dialogUserVisible,
+      userForm,
+      userTableData
     }
   }
 })

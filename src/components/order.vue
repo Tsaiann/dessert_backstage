@@ -128,7 +128,7 @@
                       </span>
                     </template>
                   </el-dialog>
-                  <el-button type="danger" plain size="small">刪除</el-button>
+                  <el-button type="danger" plain size="small" @click="deleteOrder" data-space-left="0.5rem">刪除</el-button>
                 </div>
               </template>
             </el-table-column>
@@ -141,6 +141,7 @@
 
 <script>
 import guideLine from '@/components/guideLine.vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive, defineComponent } from 'vue'
 import { useStore } from 'vuex'
 
@@ -241,6 +242,29 @@ export default defineComponent({
       total:'',
       remark:''
     })
+    const deleteOrder = () => {
+      ElMessageBox.confirm(
+        '確定要刪除資料？',
+        '警告',
+        {
+          confirmButtonText: '確定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(() => {
+          ElMessage({
+            type: 'success',
+            message: '已刪除資料',
+          })
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消刪除',
+          })
+        })
+    }
     return{
       timeValue,
       deliver,
@@ -251,7 +275,8 @@ export default defineComponent({
       orderPagination,
       tableData,
       dialogVisible,
-      orderForm
+      orderForm,
+      deleteOrder
     }
   }
 })

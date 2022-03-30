@@ -25,11 +25,30 @@
         .el-table .cell{
           padding-left: 25px;
         }
-        .el-table_1_column_5{
-          text-align: center;
+        .el-dialog{
+          &__header{
+            border-bottom: 1px solid #000;
+            width: 93%;
+            margin: auto;
+            padding: 20px 20px 5px 5px;
+          }
+          &__body{
+            padding: 20px 20px 5px 20px;
+          }
+          .el-form-item{
+            margin-bottom: 10px;
+            .el-form-item__label{
+              width: 90px;
+            }
+          }
+          .el-table{
+            border: 1px solid #000;
+            margin-bottom: 20px;
+            height: 200px;
+            overflow: scroll;
+          }
         }
       }
     }
   }
-  
 }
