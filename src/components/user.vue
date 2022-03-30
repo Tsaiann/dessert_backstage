@@ -13,7 +13,7 @@
             <el-input v-model="nameInput" clearable size="small"/>
           </div>
           <span data-space-left="1rem">等級</span>
-          <el-select v-model="userGrade" placeholder="Select" size="small" data-space-left="1rem" width="30">
+          <el-select v-model="userGrade" size="small" data-space-left="1rem" width="30">
             <el-option
               v-for="item in userList"
               :key="item.value"
