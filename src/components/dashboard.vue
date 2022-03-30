@@ -12,7 +12,7 @@
           :default-value="[new Date(2022, 1, 1), new Date(2022, 2, 1)]"
         >
         </el-date-picker>
-        <el-button type="info"  data-space-left="0.5rem">Search</el-button>
+        <el-button type="info"  data-space-left="0.5rem">搜尋</el-button>
       </div>
       <div class="revenue" data-space-bottom="3rem">
         <h2>總營業額:</h2>

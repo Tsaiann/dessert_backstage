@@ -6,11 +6,11 @@
         <div class="row horizontal v_center">
           <span data-space-left="1rem">帳號/信箱：</span>
             <div data-width="40%">
-              <el-input v-model="input" placeholder="請輸入帳號/信箱" clearable size="small"/>
+              <el-input v-model="accountInput" placeholder="請輸入帳號/信箱" clearable size="small"/>
             </div>
           <span data-space-left="1rem">姓名：</span>
           <div data-width="40%">
-            <el-input v-model="input" clearable size="small"/>
+            <el-input v-model="nameInput" clearable size="small"/>
           </div>
           <span data-space-left="1rem">等級</span>
           <el-select v-model="userGrade" placeholder="Select" size="small" data-space-left="1rem" width="30">
@@ -23,7 +23,7 @@
           </el-select>
         </div>
         <div class="row horizontal h_end" data-width="30%" data-space-right="1rem">
-          <el-button type="info" plain size="small">重置</el-button>
+          <el-button type="info" plain size="small" @click="reset">重置</el-button>
           <el-button type="info"  data-space-left="0.5rem" size="small">搜尋</el-button>
         </div>
       </div>
@@ -112,6 +112,8 @@ export default defineComponent({
   },
   setup(){
     const userGrade =ref('全部')
+    const accountInput =ref('')
+    const nameInput =ref('')
     const pagination =ref('20')
     const dialogUserVisible =ref(false)
     const userList = [
@@ -200,6 +202,11 @@ export default defineComponent({
           })
         })
     }
+    const reset = () => {
+      accountInput.value = ''
+      nameInput.value = ''
+      userGrade.value = '全部' 
+    }
     return{
       userGrade,
       userList,
@@ -209,7 +216,10 @@ export default defineComponent({
       deleteUser,
       dialogUserVisible,
       userForm,
-      userTableData
+      userTableData,
+      reset,
+      accountInput,
+      nameInput
     }
   }
 })

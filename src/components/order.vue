@@ -33,7 +33,7 @@
           </el-select>
         </div>
         <div>
-          <el-button type="info" plain data-space-left="2rem" size="small">重置</el-button>
+          <el-button type="info" plain data-space-left="2rem" size="small" @click="reset">重置</el-button>
           <el-button type="info"  data-space-right="1rem" size="small">搜尋</el-button>
         </div>
       </div>
@@ -265,6 +265,11 @@ export default defineComponent({
           })
         })
     }
+    const reset = () => {
+      timeValue.value = ''
+      deliver.value = '全部' 
+      order.value = '全部' 
+    }
     return{
       timeValue,
       deliver,
@@ -276,7 +281,8 @@ export default defineComponent({
       tableData,
       dialogVisible,
       orderForm,
-      deleteOrder
+      deleteOrder,
+      reset
     }
   }
 })

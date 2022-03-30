@@ -41,8 +41,12 @@ export default {
         if (Cookies.get('login') && loginForm.token){
           router.push({ name:'Dashboard' })
         }
-      }else{
-        alert('帳號密碼不能為空')
+      }else if( user =='' ){
+        alert('帳號不能為空')
+      }else if( pwd =='' ){
+        alert('密碼不能為空')
+      }else if( otp =='' ){
+        alert('驗證碼不能為空')
       }
     } 
     const removeLogin = () =>{

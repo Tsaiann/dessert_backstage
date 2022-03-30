@@ -17,6 +17,9 @@
       .el-date-editor--daterange.el-input__inner{
         width: 300px;
       }
+      .el-select--small{
+        width: 150px;
+      }
     }
     .orderData{
       @include boxSizing;

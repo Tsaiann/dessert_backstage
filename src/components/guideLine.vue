@@ -12,7 +12,6 @@ export default {
   },
   setup(props){
     const msg = props.msg
-    
     return{
       msg
     }

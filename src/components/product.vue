@@ -15,11 +15,11 @@
           </el-select>
           <span data-space-left="1rem">商品名稱：</span>
           <div data-width="40%">
-            <el-input v-model="input" placeholder="請輸入商品名稱" clearable size="small"/>
+            <el-input v-model="nameInput" placeholder="請輸入商品名稱" clearable size="small"/>
           </div>
         </div>
         <div class="row horizontal h_end" data-width="30%" data-space-right="1rem">
-          <el-button type="info" plain size="small">重置</el-button>
+          <el-button type="info" plain size="small" @click="reset">重置</el-button>
           <el-button type="info"  data-space-left="0.5rem" size="small">搜尋</el-button>
         </div>
       </div>
@@ -160,7 +160,7 @@ export default defineComponent({
   },
   setup(){
     const products = ref( '全部' )
-    let input= ref('')
+    const nameInput= ref('')
     const pagination =ref('20')
     const dialogProductVisible=ref(false)
     const dialogTypeVisible=ref(false)
@@ -253,9 +253,13 @@ export default defineComponent({
           })
         })
     }
+    const reset = () => {
+      products.value = '全部' 
+      nameInput.value =''
+    }
     return{
       products,
-      input,
+      nameInput,
       productsList,
       productPagination,
       pagination,
@@ -265,7 +269,8 @@ export default defineComponent({
       checked,
       productAddForm,
       textarea,
-      deleteProduct
+      deleteProduct,
+      reset
     }
   }
 })
