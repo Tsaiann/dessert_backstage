@@ -1,8 +1,8 @@
 <template>
-  <div class="order row vertical">
+  <div class="order page row vertical">
     <guideLine msg="訂單管理" />
-    <div class="content row vertical">
-      <div class="orderState" data-space-bottom="2rem">
+    <div class="commonContent row vertical">
+      <div class="commonState" data-space-bottom="2rem">
         <div>
           <span data-space-left="1rem">日期區間：</span>
           <el-date-picker
@@ -37,7 +37,7 @@
           <el-button type="info"  data-space-right="1rem" size="small">搜尋</el-button>
         </div>
       </div>
-      <div class="orderData">
+      <div class="commonData">
         <div class="row horizontal v_center" data-space-bottom="1rem">
             <span>每頁筆數：</span>
              <el-select v-model="pagination" size="small">
@@ -71,6 +71,7 @@
                 <div class="row horizontal center">
                   <el-button type="warning" plain size="small" @click="dialogVisible = true">查看/修改</el-button>
                   <el-dialog v-model="dialogVisible" title="查看/修改訂單" width="500px">
+                  <hr />
                     <el-form :model="orderForm">
                       <el-form-item label="訂單日期：">
                         <p>{{orderForm.date}}</p>

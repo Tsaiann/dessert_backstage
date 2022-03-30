@@ -1,11 +1,11 @@
 <template>
-  <div class="product row vertical">
+  <div class="product page row vertical">
     <guideLine msg="商品管理" />
-    <div class="content row vertical">
-      <div class="productState" data-space-bottom="2rem">
+    <div class="commonContent row vertical">
+      <div class="commonState" data-space-bottom="2rem">
         <div class="row horizontal v_center">
           <span data-space-left="1rem">商品分類：</span>
-          <el-select v-model="products" placeholder="Select" size="small" data-space-left="1rem" width="30">
+          <el-select v-model="products" size="small" data-space-left="1rem" width="30">
             <el-option
               v-for="item in productsList"
               :key="item.value"
@@ -23,7 +23,7 @@
           <el-button type="info"  data-space-left="0.5rem" size="small">搜尋</el-button>
         </div>
       </div>
-      <div class="productData">
+      <div class="commonData">
         <div class="row horizontal v_center" data-space-bottom="1rem">
           <div class="row horizontal v_center">
             <span>每頁筆數：</span>
@@ -47,7 +47,8 @@
           <div class="row horizontal h_end" data-width="15%">
             <el-button type="primary" plain size="small" @click="dialogTypeVisible = true">分類管理</el-button>
             <el-dialog v-model="dialogTypeVisible" title="分類管理" width="500px">
-              <el-form :model="productTypeForm">
+              <hr/>
+              <el-form :model="productTypeForm" data-space-top="1rem">
                 <el-form-item label="新增分類：">
                   <el-input size="small" placeholder="請輸入新增分類"/>
                   <el-button type="info"  data-space-left="0.5rem" size="small">新增</el-button>
@@ -73,6 +74,7 @@
             </el-dialog>
             <el-button type="primary"  data-space-left="0.5rem" size="small" @click="dialogProductVisible = true">新增商品 ＋</el-button>
             <el-dialog v-model="dialogProductVisible" title="新增商品" width="500px">
+              <hr/>
               <el-form :model="productAddForm">
                 <el-form-item label="前台顯示：">
                   <el-radio v-model="checked" label="1">是</el-radio>

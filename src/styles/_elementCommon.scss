@@ -1,0 +1,29 @@
+@mixin el-table__border($height) {
+  border: 1px solid #000;
+  margin-bottom: 20px;
+  height: $height;
+  overflow: scroll;
+}
+
+.el-table .cell{
+  padding-left: 25px;
+}
+
+.el-dialog{
+  &__header{
+    padding: 20px 0 0 25px;
+  }
+  &__body{
+    padding: 0 20px 10px 20px;
+  }
+  .el-form-item{
+    margin-bottom: 1px;
+    .el-form-item__label{
+      width: 90px;
+    }
+  }
+  .el-input{
+    width: 170px;
+  }
+}
+

@@ -1,0 +1,21 @@
+.order{
+  .el-date-editor--daterange.el-input__inner{
+    width: 300px;
+  }
+  .el-select--small{
+    width: 150px;
+  }
+  .el-table_1_column_9{
+    text-align: center;
+  }
+  .el-dialog{
+    .el-form-item{
+      &__content{
+        @include flexBox(row,center,flex-start);
+        .el-select{
+          margin-right: 5px;
+        }
+      }
+    }
+  }  
+}

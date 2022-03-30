@@ -2,44 +2,43 @@ html, body {
   height: 100%;
 }
 
+@mixin size($width, $height){
+  width: $width;
+  height: $height;
+}
+@mixin position($position, $top, $right, $bottom, $left){
+  position: $position;
+  top: $top;
+  right: $right;
+  bottom: $bottom;
+  left: $left;
+}
+
 #app {
   position: relative;
   height: 100%;
   .login{
     @include boxSizing;
-    width: 400px;
-    height: 320px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    @include size(400px,320px);
+    @include position(absolute,50%,0,0,50%);
     margin: -160px 0 0 -200px;
     border: 1px solid #C9C9C9;
     padding: 40px 50px;
-    .otp{
-      background: #dcdcdc;
-      height: 40px;
-      width: 150px;
-      text-align: center;
-      line-height: 2;
-      font-size: 20px;
-    }
   }
-  .home {
-      height: 100%;
-      width: 100%;
-      white-space:nowrap;
-      .guideLine{
-        @include boxSizing;
-        width: 100%;
-        background: #d3d3d3;
-        height: 55.5px;
-        line-height: 3.4;
-        font-size: 17px;
-        font-weight:bolder;
-        padding-left: 15px;
-      }
-      #operate{
-        text-align: center;
-      }
+  .home{
+    @include size(100%,100%);
+    white-space:nowrap;
+    .guideLine{
+      @include boxSizing;
+      @include size(100%, 55.5px);
+      background: #d3d3d3;
+      line-height: 3.4;
+      font-size: 17px;
+      font-weight:bolder;
+      padding-left: 15px;
+    }
+    #operate{
+      text-align: center;
+    }
   }
 }
