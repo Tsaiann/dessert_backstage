@@ -58,15 +58,15 @@
         </div>
         <div class="tableData">
           <el-table :data="tableData" >
-            <el-table-column prop="id" label="id" width="70"/>
-            <el-table-column prop="name" label="商品名稱" width="160"/>
-            <el-table-column prop="count" label="數量" width="65"/>
-            <el-table-column prop="member" label="會員" width="200" />
-            <el-table-column prop="price" label="金額" width="100"/>
-            <el-table-column prop="orderState" label="訂單狀態" width="100"/>
-            <el-table-column prop="deliverState" label="出貨狀態" width="100"/>
-            <el-table-column prop="date" label="訂單日期" width="130"/>
-            <el-table-column id="operate" label="操作" width="200">
+            <el-table-column prop="id" label="id" min-width="100"/>
+            <el-table-column prop="name" label="商品名稱" min-width="180"/>
+            <el-table-column prop="count" label="數量" min-width="70"/>
+            <el-table-column prop="member" label="會員" min-width="250" />
+            <el-table-column prop="price" label="金額" min-width="100"/>
+            <el-table-column prop="orderState" label="訂單狀態" min-width="100"/>
+            <el-table-column prop="deliverState" label="出貨狀態" min-width="100"/>
+            <el-table-column prop="date" label="訂單日期" min-width="130"/>
+            <el-table-column id="operate" label="操作" min-width="200">
               <template #default>
                 <div class="row horizontal center">
                   <el-button type="warning" plain size="small" @click="dialogVisible = true">查看/修改</el-button>
@@ -82,7 +82,7 @@
                       <el-form-item label="優惠券：">
                         <p>{{orderForm.discount}}</p>
                       </el-form-item>
-                      <el-form-item label="商品名稱：" label-width="140">
+                      <el-form-item label="商品名稱：" >
                         <el-select v-model="orderForm.type" placeholder="請選擇" size="small">
                           <el-option label="馬卡龍" value="1" />
                           <el-option label="戚風蛋糕" value="2" />

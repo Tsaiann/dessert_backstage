@@ -98,15 +98,8 @@
                   <el-input v-model="productAddForm.price" autocomplete="off" size="small"/>
                 </el-form-item>
                 <el-form-item label="圖片上傳：">
-                  <el-upload
-                    class="upload-demo"
-                  >
-                    <el-button type="primary">上傳圖片</el-button>
-                    <template #tip>
-                      <div class="el-upload__tip">
-                        jpg/png files with a size less than 500KB.
-                      </div>
-                    </template>
+                  <el-upload class="upload-demo">
+                    <el-button type="primary" size="small">上傳圖片</el-button>
                   </el-upload>
                 </el-form-item>
                 <el-form-item label="商品說明：">
@@ -130,11 +123,11 @@
         </div>
         <div class="tableData">
           <el-table :data="tableData" >
-            <el-table-column prop="id" label="id" width="60"/>
-            <el-table-column prop="name" label="商品名稱" width="200"/>
-            <el-table-column prop="type" label="商品分類" width="150"/>
-            <el-table-column prop="img" label="商品圖片" width="250"/>
-            <el-table-column prop="show" label="前台顯示" width="200"/>
+            <el-table-column prop="id" label="id" min-width="80"/>
+            <el-table-column prop="name" label="商品名稱" min-width="250"/>
+            <el-table-column prop="type" label="商品分類" min-width="150"/>
+            <el-table-column prop="img" label="商品圖片" min-width="250"/>
+            <el-table-column prop="show" label="前台顯示" min-width="100"/>
             <el-table-column label="操作" width="270">
               <template #default>
                 <div class="row horizontal center">

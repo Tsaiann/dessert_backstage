@@ -1,5 +1,13 @@
 .user{
+  .el-table_1_column_5{
+    text-align: center;
+  }
   .el-dialog{
+    &__header{
+      @include flexBox(row, flex-start,flex-start);
+      padding: 20px 0 0 20px;
+    }
+    
     .el-form-item__label{
       text-align: left;
     }
