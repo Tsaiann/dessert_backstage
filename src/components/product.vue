@@ -128,7 +128,7 @@
             <el-table-column prop="type" label="商品分類" min-width="150"/>
             <el-table-column prop="img" label="商品圖片" min-width="250"/>
             <el-table-column prop="show" label="前台顯示" min-width="100"/>
-            <el-table-column label="操作" width="270">
+            <el-table-column label="操作" width="270" align="center">
               <template #default>
                 <div class="row horizontal center">
                   <el-button type="warning" plain size="small" @click="dialogProductVisible = true">查看/修改</el-button>
@@ -146,9 +146,9 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive, defineComponent } from 'vue'
+import { ref, reactive} from 'vue'
 
-export default defineComponent({
+export default {
   name:'Product',
   components:{
     guideLine
@@ -268,5 +268,5 @@ export default defineComponent({
       reset
     }
   }
-})
+}
 </script>

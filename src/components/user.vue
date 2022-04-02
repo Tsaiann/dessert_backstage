@@ -52,7 +52,7 @@
             <el-table-column prop="name" label="會員姓名" width="200"/>
             <el-table-column prop="account" label="帳號/信箱" width="300"/>
             <el-table-column prop="grade" label="會員等級" min-width="100"/>
-            <el-table-column label="操作" width="200">
+            <el-table-column label="操作" width="200" align="center">
               <template #default>
                 <div class="row horizontal center">
                   <el-button type="warning" plain size="small" @click="dialogUserVisible = true">查看</el-button>
@@ -104,9 +104,9 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive, defineComponent } from 'vue'
+import { ref, reactive } from 'vue'
 
-export default defineComponent({
+export default {
   name:'User',
   components:{
     guideLine
@@ -223,5 +223,5 @@ export default defineComponent({
       nameInput
     }
   }
-})
+}
 </script>

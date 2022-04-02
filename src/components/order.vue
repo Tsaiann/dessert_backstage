@@ -66,7 +66,7 @@
             <el-table-column prop="orderState" label="訂單狀態" min-width="100"/>
             <el-table-column prop="deliverState" label="出貨狀態" min-width="100"/>
             <el-table-column prop="date" label="訂單日期" min-width="130"/>
-            <el-table-column id="operate" label="操作" min-width="200">
+            <el-table-column id="operate" label="操作" min-width="200" align="center">
               <template #default>
                 <div class="row horizontal center">
                   <el-button type="warning" plain size="small" @click="dialogVisible = true">查看/修改</el-button>
@@ -143,10 +143,10 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive, defineComponent } from 'vue'
+import { ref, reactive } from 'vue'
 import { useStore } from 'vuex'
 
-export default defineComponent({
+export default {
   name:'Order',
   components:{
     guideLine
@@ -286,5 +286,5 @@ export default defineComponent({
       reset
     }
   }
-})
+}
 </script>

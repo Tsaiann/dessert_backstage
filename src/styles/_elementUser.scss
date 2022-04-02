@@ -1,7 +1,4 @@
 .user{
-  .el-table_1_column_5{
-    text-align: center;
-  }
   .el-dialog{
     &__header{
       @include flexBox(row, flex-start,flex-start);
