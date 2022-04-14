@@ -1,8 +1,8 @@
 <template>
   <div class="product page row vertical">
     <guideLine msg="商品管理" />
-    <div class="commonContent row vertical">
-      <div class="commonState" data-space-bottom="2rem">
+    <div class="common_content row vertical">
+      <div class="common_state" data-space-bottom="2rem">
         <div class="row horizontal v_center">
           <span data-space-left="1rem">商品分類：</span>
           <el-select v-model="products" size="small" data-space-left="1rem" width="30">
@@ -23,7 +23,7 @@
           <el-button type="info"  data-space-left="0.5rem" size="small">搜尋</el-button>
         </div>
       </div>
-      <div class="commonData">
+      <div class="common_data">
         <div class="row horizontal v_center" data-space-bottom="1rem">
           <div class="row horizontal v_center">
             <span>每頁筆數：</span>
@@ -121,7 +121,7 @@
             </el-dialog>
           </div>
         </div>
-        <div class="tableData">
+        <div class="table_data">
           <el-table :data="tableData" >
             <el-table-column prop="id" label="id" min-width="80"/>
             <el-table-column prop="name" label="商品名稱" min-width="250"/>

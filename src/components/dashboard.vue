@@ -18,7 +18,7 @@
         <h2>總營業額:</h2>
         <span></span>
       </div>
-      <div class="itemTotal">
+      <div class="total">
         <h2 data-space-bottom="2rem">各項商品銷售總數:</h2>
         <div class="row horizontal">
           <div v-for="item in cakeItem" :key="item" class="row vertical">

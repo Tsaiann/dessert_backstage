@@ -1,8 +1,8 @@
 <template>
   <div class="user page row vertical">
     <guideLine msg="會員管理" />
-    <div class="commonContent row vertical">
-      <div class="commonState" data-space-bottom="2rem">
+    <div class="common_content row vertical">
+      <div class="common_state" data-space-bottom="2rem">
         <div class="row horizontal v_center">
           <span data-space-left="1rem">帳號/信箱：</span>
             <div data-width="40%">
@@ -27,7 +27,7 @@
           <el-button type="info"  data-space-left="0.5rem" size="small">搜尋</el-button>
         </div>
       </div>
-      <div class="commonData">
+      <div class="common_data">
         <div class="row horizontal v_center" data-space-bottom="1rem">
             <span>每頁筆數：</span>
              <el-select v-model="pagination" size="small">
@@ -46,7 +46,7 @@
               data-space-left="1rem"
             ></el-pagination>
         </div>
-        <div class="tableData">
+        <div class="table_data">
           <el-table :data="tableData" >
             <el-table-column prop="id" label="id" width="150"/>
             <el-table-column prop="name" label="會員姓名" width="200"/>

@@ -1,8 +1,8 @@
 <template>
   <div class="order page row vertical">
     <guideLine msg="訂單管理" />
-    <div class="commonContent row vertical">
-      <div class="commonState" data-space-bottom="2rem">
+    <div class="common_content row vertical">
+      <div class="common_state" data-space-bottom="2rem">
         <div>
           <span data-space-left="1rem">日期區間：</span>
           <el-date-picker
@@ -37,7 +37,7 @@
           <el-button type="info"  data-space-right="1rem" size="small">搜尋</el-button>
         </div>
       </div>
-      <div class="commonData">
+      <div class="common_data">
         <div class="row horizontal v_center" data-space-bottom="1rem">
             <span>每頁筆數：</span>
              <el-select v-model="pagination" size="small">
@@ -56,7 +56,7 @@
               data-space-left="1rem"
             ></el-pagination>
         </div>
-        <div class="tableData">
+        <div class="table_data">
           <el-table :data="tableData" >
             <el-table-column prop="id" label="id" min-width="100"/>
             <el-table-column prop="name" label="商品名稱" min-width="180"/>

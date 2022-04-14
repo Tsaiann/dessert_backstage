@@ -1,5 +1,5 @@
 <template>
-  <div class="guideLine">
+  <div class="guide_line">
     <p>{{ msg }}</p>
   </div>
 </template>

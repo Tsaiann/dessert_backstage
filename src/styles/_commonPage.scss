@@ -1,20 +1,20 @@
 .page{
   @include size(100%,100%);
   min-width: 1100px;
-  .commonContent{
+  .common_content{
     @include size(100%,100%);
     padding: 30px;
-    .commonState{
+    .common_state{
       @include flexBox(row,center,space-between);
       @include size(100%,35px);
       font-size: 14px;
       border: 1px solid #000;
       padding: 20px 0;
     }
-    .commonData{
+    .common_data{
       @include boxSizing;
       @include size(100%,100%);
-      .tableData{
+      .table_data{
         @include boxSizing;
         border: 1px solid #000;
         height: 90%;

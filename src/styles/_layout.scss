@@ -28,7 +28,7 @@ html, body {
   .home{
     @include size(100%,100%);
     white-space:nowrap;
-    .guideLine{
+    .guide_line{
       @include boxSizing;
       @include size(100%, 55.5px);
       background: #d3d3d3;
