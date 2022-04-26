@@ -1,6 +1,5 @@
 const path = require('path');
-// const burl = '@/views/default/'
-// const burl = ''
+
 module.exports = {
   lintOnSave: false,
   publicPath: process.env.NODE_ENV === 'production' ? '/dessert_backstage/' : '/',
@@ -37,4 +36,4 @@ module.exports = {
   devServer: {
     disableHostCheck: true,
   },
-};
+}

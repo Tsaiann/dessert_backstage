@@ -28,40 +28,31 @@ export default {
     let loginForm = reactive({
       username:'',
       password:'',
-      token:'3sfjsdlkfj3254jlkdslj',
       otp:''
     })
-    const hanleLogin = () =>{
-      const user = loginForm.username
-      const pwd = loginForm.password
-      const otp =loginForm.otp
-      const token = loginForm.token
+    const hanleLogin = async() =>{
       if( user !=='' && pwd !=='' && otp !==''){
-        Cookies.set('login', JSON.stringify(loginForm))
-        if (Cookies.get('login') && loginForm.token){
-          router.push({ name:'Dashboard' })
-        }
+          await api.post(service.baseURL, loginForm)
+          let token = response.data.token
+          Cookies.set('token', JSON.stringify(token))
+          router.push({ name: 'Dashboard' }) 
       }else if( user =='' ){
         alert('帳號不能為空')
       }else if( pwd =='' ){
         alert('密碼不能為空')
       }else if( otp =='' ){
         alert('驗證碼不能為空')
-      }
+      }      
     } 
     const removeLogin = () =>{
       loginForm.username='',
       loginForm.password=''
     }
-    const removeCookie = onMounted( () =>{
-      Cookies.remove('login')
-    })
     
     return{
       loginForm,
       hanleLogin,
-      removeLogin,
-      removeCookie
+      removeLogin
     }
   }
 }
