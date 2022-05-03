@@ -1,4 +1,4 @@
-import api from '@/service/api'
+import request from '@/service/request'
 
 export const state={}
 export const getters={}
