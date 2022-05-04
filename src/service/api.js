@@ -1,4 +1,3 @@
-//管理所有api的地方
 import { request } from '@/service/request'
 
 // 獲得登入OTP碼 
@@ -10,10 +9,10 @@ export const getOtp = (params) =>
     params
   })
 // login
-export const login = (data) =>
+export const login = (params) =>
   request({
-    url:'/member/login',
-    method:'post',
+    url: '/member/login',
+    method: 'post',
     headers:{ 'Content-Type': 'text/plain' },
-    data : data
+    params
   })

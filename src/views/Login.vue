@@ -1,9 +1,9 @@
 <template>
   <div class="login row vertical" data-width="20%">
     <p>使用者帳號</p>
-    <el-input v-model="loginForm.user" type="text" placeholder="請輸入帳號"  data-space-bottom="0.5rem"/>
+    <el-input v-model="loginForm.account" type="text" placeholder="請輸入帳號"  data-space-bottom="0.5rem"/>
     <p>密碼</p>
-    <el-input v-model="loginForm.pwd" type="password" placeholder="請輸入密碼" data-space-bottom="0.5rem"/>
+    <el-input v-model="loginForm.password" type="password" placeholder="請輸入密碼" data-space-bottom="0.5rem"/>
     <p>驗證碼</p>
     <div class="row horizontal">
       <el-input v-model="loginForm.otp" type="text"  data-space-bottom="1rem"/>
@@ -12,7 +12,7 @@
     <div class="row horizontal center">
       <el-button type="primary" @click="hanleLogin()" >登入</el-button>
       <el-button @click="removeLogin()">清除</el-button>
-      <el-button @click="text()">text</el-button>
+      <el-button @click="test()">test</el-button>
     </div>
   </div>
 </template>
@@ -28,8 +28,8 @@ export default {
     const router = useRouter()
     let otp = reactive({ OTP:'' })
     const loginForm = reactive({
-      user:'',
-      pwd:'',
+      account:'',
+      password:'',
       otp:''
     })
     const callOtp = onMounted( async () => {
@@ -38,21 +38,23 @@ export default {
       if (res.data.Code === 200) {
         otp.OTP = res.data.Data.OTP
       } else {
-        alert('API ERROR!!')
+        alert('Get OTP ERROR!!')
       }
     })
     const hanleLogin = async() =>{
-      if ( loginForm.user !=='' && loginForm.pwd !== '' && loginForm.otp !=='' ){
+      if ( loginForm.account !=='' && loginForm.password !== '' && loginForm.otp !=='' ){
         if( loginForm.otp !== otp.OTP){
           alert('驗證碼錯誤，請重新輸入！')
+          callOtp()
           loginForm.otp = ''
         }else{
-          const res = await login(loginForm).then(
+          const res = await login(JSON.stringify(loginForm)).then(
             () =>{
-              localStorage.setItem( 'token' , res.data.token)
+              console.log(res)
+              /*localStorage.setItem( 'token' , res.Data.Token)
               if( localStaorage.getItme('token') !=='' ){
                 router.push({ name: 'Dashboard' })
-              }
+              }*/
             }
           ).catch(
             (error)=>{
@@ -61,35 +63,35 @@ export default {
             }
           )
         }
-      }else if( loginForm.user =='' ){
+      }else if( loginForm.account =='' ){
         alert('帳號不能為空')
-      }else if( loginForm.pwd =='' ){
+      }else if( loginForm.password =='' ){
         alert('密碼不能為空')
       }else if( loginForm.otp =='' ){
         alert('驗證碼不能為空')
       }
     }
-    const text = async() =>{
-      const res = await login({
-        "name": 'Admin',
-        "pwd": 'Admin',
-        "otp": otp
-      })
-        console.log(res) 
-    }
     const removeLogin = () => {
-      loginForm.user='',
-      loginForm.pwd='',
+      loginForm.account='',
+      loginForm.password='',
       loginForm.otp=''
     }
-
+    const test = async() => {
+      const data = {
+        account: 'Admin',
+        password: 'Admin',
+        otp: otp.OTP
+      }
+      const res = await login(JSON.stringify(data))
+      console.log(res)
+    }
     return{
       loginForm,
       hanleLogin,
       removeLogin,
       callOtp,
       otp,
-      text
+      test
     }
   }
 }
