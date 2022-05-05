@@ -21,6 +21,7 @@
         <div class="row horizontal h_end" data-width="30%" data-space-right="1rem">
           <el-button type="info" plain size="small" @click="reset">重置</el-button>
           <el-button type="info"  data-space-left="0.5rem" size="small">搜尋</el-button>
+          <el-button type="info"  data-space-left="0.5rem" size="small" @click="text()">text</el-button>
         </div>
       </div>
       <div class="common_data">
@@ -147,6 +148,7 @@
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive} from 'vue'
+import { goods, getOtp } from '@/service/api'
 
 export default {
   name:'Product',
@@ -265,7 +267,8 @@ export default {
       productAddForm,
       textarea,
       deleteProduct,
-      reset
+      reset,
+      
     }
   }
 }

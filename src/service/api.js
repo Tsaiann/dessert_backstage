@@ -13,6 +13,16 @@ export const login = (params) =>
   request({
     url: '/member/login',
     method: 'post',
-    headers:{ 'Content-Type': 'text/plain' },
+    headers: { 'Content-Type': 'text/plain' },
+    params
+  })
+// dashboard
+export const getDashboard = (params) =>
+  request({
+    url: '/admin/dashboard',
+    method: 'get',
+    headers: { 
+      'Content-Type': 'application/json'
+     },
     params
   })

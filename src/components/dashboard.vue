@@ -33,15 +33,21 @@
 
 <script>
 import guideLine from '@/components/guideLine.vue'
-import { ref, reactive, defineComponent } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { getDashboard } from '@/service/api'
 
-export default defineComponent({
+export default {
   name:'Dashboard',
   components:{
     guideLine
   },
   setup(){
     const value = ref('')
+    const dashboard = onMounted( async() =>{
+      const data=''
+      const res =await getDashboard(data)
+      console.log(res)
+    })
     const cakeItem = reactive([
       {
         name:'戚風蛋糕',
@@ -62,8 +68,9 @@ export default defineComponent({
     ])
     return{
       value,
-      cakeItem
+      cakeItem,
+      dashboard
     }
   }
-})
+}
 </script>

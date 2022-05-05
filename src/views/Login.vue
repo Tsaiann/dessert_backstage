@@ -12,7 +12,6 @@
     <div class="row horizontal center">
       <el-button type="primary" @click="hanleLogin()" >登入</el-button>
       <el-button @click="removeLogin()">清除</el-button>
-      <el-button @click="test()">test</el-button>
     </div>
   </div>
 </template>
@@ -21,11 +20,14 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getOtp, login } from '@/service/api'
+import { userModules } from '@/store/modules/userStatus'
+
 
 export default {
   name:'Login',
   setup(){
     const router = useRouter()
+    const userStore = userModules()
     let otp = reactive({ OTP:'' })
     const loginForm = reactive({
       account:'',
@@ -43,26 +45,29 @@ export default {
     })
     const hanleLogin = async() =>{
       if ( loginForm.account !=='' && loginForm.password !== '' && loginForm.otp !=='' ){
-        if( loginForm.otp !== otp.OTP){
-          alert('驗證碼錯誤，請重新輸入！')
-          callOtp()
-          loginForm.otp = ''
-        }else{
-          const res = await login(JSON.stringify(loginForm)).then(
-            () =>{
-              console.log(res)
-              /*localStorage.setItem( 'token' , res.Data.Token)
-              if( localStaorage.getItme('token') !=='' ){
-                router.push({ name: 'Dashboard' })
-              }*/
+        const res = await login(JSON.stringify(loginForm)).then(
+          res => {
+            if(res.data.Code === 200){
+              router.push({ name: 'Dashboard' })
             }
-          ).catch(
-            (error)=>{
-              alert('error!!')
-              console.log(error)
+          }
+        ).catch(
+          error =>{
+            if(loginForm.otp !== otp.OTP){
+              alert('驗證碼有誤請重新輸入')
+              callOtp()
+              Object.keys(loginForm).forEach( item => {
+                loginForm [item] = ''
+              })
+            }else{
+              alert('輸入資料有誤，請重新輸入')
+              callOtp()
+              Object.keys(loginForm).forEach( item => {
+                loginForm [item] = ''
+              })
             }
-          )
-        }
+          }
+        )
       }else if( loginForm.account =='' ){
         alert('帳號不能為空')
       }else if( loginForm.password =='' ){
@@ -76,22 +81,13 @@ export default {
       loginForm.password='',
       loginForm.otp=''
     }
-    const test = async() => {
-      const data = {
-        account: 'Admin',
-        password: 'Admin',
-        otp: otp.OTP
-      }
-      const res = await login(JSON.stringify(data))
-      console.log(res)
-    }
+    
     return{
       loginForm,
       hanleLogin,
       removeLogin,
       callOtp,
-      otp,
-      test
+      otp
     }
   }
 }

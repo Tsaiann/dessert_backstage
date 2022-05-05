@@ -4,16 +4,12 @@ import axios from 'axios'
 export const request = (config) =>{
   const service = axios.create({
     headers: config.headers,
-    baseURL: 'https://nocodenolife.net/ann/' ,
+    baseURL: process.env.VUE_APP_BASE_API,
     timeout: 30000,
     
-    transformRequest: [(data) => {
-      let ret = ''
+    transformRequest: [(data = config.params) => {
       const tempData = getJwtData(data)
-      for (const item in tempData) {
-        ret += encodeURIComponent(item) + '=' + encodeURIComponent(tempData[item]) + '&'
-      }
-      return ret
+      return tempData.data
     }]
   })
 
@@ -27,7 +23,7 @@ export const request = (config) =>{
         }
       }
     }
-    const jwt = encodeURIComponent(btoa(encodeURIComponent(JSON.stringify(data))))
+    const jwt = encodeURIComponent(btoa(encodeURIComponent(data)))
     return { data: jwt }
   }
   
@@ -39,16 +35,18 @@ export const request = (config) =>{
   })
 
   //設置 response 攔截器
-  service.interceptors.response.use((response) =>{
-    if(response.status === 200){
-      console.log('res', response)
-      return Promise.resolve(response)
-    }else{
-      return Promise.reject(response)
+  service.interceptors.response.use(
+    (response) =>{
+      if(response.status === 200){
+        console.log('res', response)
+        return Promise.resolve(response)
+      }else{
+        return Promise.reject(response)
+      }
+    },
+    (error)=>{
+      error.message ='error!'
     }
-  }),(error)=>{
-    error.message ='error!'
-  }
-
+  )
   return service(config)
 }
