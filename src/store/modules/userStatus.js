@@ -1,31 +1,37 @@
 import request from '@/service/request'
 
 export const userModules = {
+  namespaced: true,
   state:{
     userStatus:{
       username:'',
-      token:''
+      token:'',
+      isLogin: false,
     }
   },
 
   getters:{
-
+    getToken(state){
+      if(!state.token){
+        state.token = localStorage.getItem('token')
+      }
+      return state.token
+    }
   },
   
   mutations:{
-    SET_TOKEN(state,token){
-      state.userStatus.token = token
-      localStorage.setItem('token',token)
+    SET_TOKEN(state, payload){
+      localStorage.setItem('token', payload)
+      state.userStatus.token = payload
     },
-    DEL_TOKEN(state,token){
+    DEL_TOKEN(state){
+      state.userStatus.token = ''
       localStorage.removeItem('token')
     }
   },
   
   actions:{
-    setToken(context, payload){
-      context.commit('SET_TOKEN', payload)
-    }
+
   }
 }
 

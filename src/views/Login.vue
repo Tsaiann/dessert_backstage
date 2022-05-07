@@ -20,14 +20,14 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getOtp, login } from '@/service/api'
-import { userModules } from '@/store/modules/userStatus'
+import { useStore } from 'vuex'
 
 
 export default {
   name:'Login',
   setup(){
+    const store = useStore()
     const router = useRouter()
-    const userStore = userModules()
     let otp = reactive({ OTP:'' })
     const loginForm = reactive({
       account:'',
@@ -48,8 +48,9 @@ export default {
         const res = await login(JSON.stringify(loginForm)).then(
           res => {
             if(res.data.Code === 200){
+              store.commit('userModules/SET_TOKEN', res.data.Data.Token)
               router.push({ name: 'Dashboard' })
-            }
+            }else{}
           }
         ).catch(
           error =>{
