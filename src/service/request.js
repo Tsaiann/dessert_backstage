@@ -4,11 +4,11 @@ import axios from 'axios'
 export const request = (config) =>{
   const service = axios.create({
     headers: config.headers,
-    baseURL: process.env.VUE_APP_BASE_API,
+    baseURL: '/api',
     timeout: 30000,
     
     transformRequest: [(data = config.params) => {
-      const tempData = getJwtData(data)
+      const tempData = getJwtData(JSON.stringify(data))
       return tempData.data
     }]
   })

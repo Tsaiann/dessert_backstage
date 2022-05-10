@@ -27,7 +27,7 @@ export const login = (params) =>
 export const getDashboard = (params) =>
   request({
     url: '/admin/dashboard',
-    method: 'get',
+    method: 'post',
     headers: { 
       'token': getToken(), 
       'Content-Type': 'application/json'
