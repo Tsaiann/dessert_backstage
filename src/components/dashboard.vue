@@ -44,7 +44,7 @@ export default {
   setup(){
     const value = ref('')
     const test = async() =>{
-      const data =''
+      const data = {}
       const res = await getDashboard(data)
       console.log(res)
     }

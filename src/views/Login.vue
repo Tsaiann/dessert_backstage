@@ -49,7 +49,7 @@ export default {
           res => {
             if(res.data.Code === 200){
               store.commit('userModules/SET_TOKEN', res.data.Data.Token)
-              router.push({ name: 'Dashboard' })
+              router.push({ name: 'Home' })
             }else{}
           }
         ).catch(
