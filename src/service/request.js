@@ -1,5 +1,5 @@
 import axios from 'axios'
-
+import { ElMessage } from 'element-plus'
 
 export const request = (config) =>{
   const service = axios.create({
@@ -45,7 +45,13 @@ export const request = (config) =>{
       }
     },
     (error)=>{
-      error.message ='error!'
+      if( error.response.status !== 200 ){
+        ElMessage({
+          showClose: true,
+          message: '輸入有誤，請重新輸入！',
+          type: 'error',
+        })
+      }
     }
   )
   return service(config)

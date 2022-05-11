@@ -21,6 +21,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getOtp, login } from '@/service/api'
 import { useStore } from 'vuex'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 
 export default {
@@ -45,50 +46,32 @@ export default {
     })
     const hanleLogin = async() =>{
       if ( loginForm.account !=='' && loginForm.password !== '' && loginForm.otp !=='' ){
-        const res = await login(JSON.stringify(loginForm)).then(
-          res => {
-            if(res.data.Code === 200){
-              store.commit('userModules/SET_TOKEN', res.data.Data.Token)
-              router.push({ name: 'Home' })
-            }else{}
-          }
-        ).catch(
-          error =>{
-            if(loginForm.otp !== otp.OTP){
-              alert('驗證碼有誤請重新輸入')
-              callOtp()
-              Object.keys(loginForm).forEach( item => {
-                loginForm [item] = ''
-              })
-            }else{
-              alert('輸入資料有誤，請重新輸入')
-              callOtp()
-              Object.keys(loginForm).forEach( item => {
-                loginForm [item] = ''
-              })
-            }
-          }
-        )
-      }else if( loginForm.account =='' ){
-        alert('帳號不能為空')
-      }else if( loginForm.password =='' ){
-        alert('密碼不能為空')
-      }else if( loginForm.otp =='' ){
-        alert('驗證碼不能為空')
+        const res = await login(loginForm)
+        if(res.data.Code === 200){
+          store.commit('userModules/SET_TOKEN', res.data.Data.Token)
+          router.push({ name: 'Home' })
+        }
+      }else if( loginForm.account =='' || loginForm.password =='' ||loginForm.otp =='' ){
+        ElMessage({
+          showClose: true,
+          message: '欄位不能為空，請重新輸入！',
+          type: 'error',
+        })
+        removeLogin()
+        callOtp()
       }
     }
     const removeLogin = () => {
-      loginForm.account='',
-      loginForm.password='',
-      loginForm.otp=''
+      Object.keys(loginForm).forEach( item => {
+        loginForm [item] = ''
+      })
     }
-    
     return{
       loginForm,
       hanleLogin,
       removeLogin,
       callOtp,
-      otp
+      otp,
     }
   }
 }

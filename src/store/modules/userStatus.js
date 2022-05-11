@@ -1,4 +1,5 @@
 import request from '@/service/request'
+import Cookies from 'js-cookie'
 
 export const userModules = {
   namespaced: true,
@@ -13,7 +14,7 @@ export const userModules = {
   getters:{
     getToken(state){
       if(!state.token){
-        state.token = localStorage.getItem('token')
+        state.token = Cookies.get('token')
       }
       return state.token
     }
@@ -21,7 +22,7 @@ export const userModules = {
   
   mutations:{
     SET_TOKEN(state, payload){
-      localStorage.setItem('token', payload)
+      Cookies.set('token', payload)
       state.userStatus.token = payload
     },
     DEL_TOKEN(state){
