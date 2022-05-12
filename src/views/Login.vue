@@ -23,7 +23,6 @@ import { getOtp, login } from '@/service/api'
 import { useStore } from 'vuex'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
-
 export default {
   name:'Login',
   setup(){

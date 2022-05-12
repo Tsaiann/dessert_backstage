@@ -21,7 +21,6 @@
         <div class="row horizontal h_end" data-width="30%" data-space-right="1rem">
           <el-button type="info" plain size="small" @click="reset">重置</el-button>
           <el-button type="info"  data-space-left="0.5rem" size="small">搜尋</el-button>
-          <el-button type="info"  data-space-left="0.5rem" size="small" @click="text()">text</el-button>
         </div>
       </div>
       <div class="common_data">
@@ -56,7 +55,8 @@
                 </el-form-item>
                 <el-table :data="typeTableData">
                   <el-table-column prop="id" label="id" width="80"/>
-                  <el-table-column prop="name" label="分類名稱" width="200"/>
+                  <el-table-column prop="name" label="分類名稱" width="130"/>
+                  <el-table-column prop="anotherName" label="別名" width="130"/>
                   <el-table-column label="操作">
                     <template #default>
                       <el-button type="danger" plain size="small">刪除</el-button>
@@ -147,8 +147,8 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive} from 'vue'
-import { goods, getOtp } from '@/service/api'
+import { ref, reactive,onMounted } from 'vue'
+import { productList } from '@/service/api'
 
 export default {
   name:'Product',
@@ -163,6 +163,17 @@ export default {
     const dialogTypeVisible=ref(false)
     const checked = ref('1')
     const textarea= ref('')
+    const getProdcutList = onMounted( async () => {
+      const data ={
+          ID: 0,
+          Page: 0,
+          Limit: 0,
+          GoodsName:"sr",
+          GoodsType: 2
+      }
+      const res = await productList(data)
+      console.log(res)
+    })
     const productsList = [
       {
         value: 1,
@@ -210,14 +221,7 @@ export default {
       type:'戚風蛋糕',
       img:'',
       show:'是',
-    },
-    {
-      id:'2',
-      name:'伯爵香蕉戚風蛋糕',
-      type:'戚風蛋糕',
-      img:'',
-      show:'是',
-    },
+    }
     ]
     const productAddForm = reactive({
       display: '',
@@ -268,7 +272,7 @@ export default {
       textarea,
       deleteProduct,
       reset,
-      
+      getProdcutList
     }
   }
 }

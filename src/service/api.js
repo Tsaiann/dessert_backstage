@@ -2,7 +2,7 @@ import { request } from '@/service/request'
 
 // 取得token
 export const getToken = () =>{
-  return Cookies.get('token')
+  return localStorage.getItem('token')
 }
 
 // 獲得登入OTP碼 
@@ -23,10 +23,22 @@ export const login = (params) =>
     },
     params
   })
-// dashboard
-export const getDashboard = (params) =>
+// getProductList
+export const productList = (params) =>
   request({
-    url: '/admin/dashboard',
+    url: '/admin/goods/r',
+    method: 'post',
+    headers: { 
+      'token': getToken(), 
+      'Content-Type': 'application/json'
+     },
+    params
+  })
+
+// addProduct
+export const addProduct = (params) =>
+  request({
+    url: '/admin/goods/c',
     method: 'post',
     headers: { 
       'token': getToken(), 
