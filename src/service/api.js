@@ -46,3 +46,74 @@ export const addProduct = (params) =>
      },
     params
   })
+
+// updateProduct
+export const updateProduct = (params) =>
+  request({
+    url: '/admin/goods/u',
+    method: 'put',
+    headers: { 
+      'token': getToken(), 
+      'Content-Type': 'application/json'
+     },
+    params
+  })
+
+  // deleteProduct
+  export const delProduct = (params) =>
+  request({
+    url: '/admin/goods/d?ID=8',
+    method: 'delete',
+    headers: { 
+      'token': getToken(),
+      'Content-Type': 'text/plain'
+    },
+    params
+  })
+
+// getGoodsTypeList
+export const goodsTypeList = (params) =>
+  request({
+    url: '/admin/goodstype/r',
+    method: 'post',
+    headers: { 
+      'token': getToken(), 
+      'Content-Type': 'text/plain'
+     },
+    params
+  })
+
+// addGoodsType
+export const addGoodType = (params) =>
+  request({
+    url: '/admin/goodstype/c',
+    method: 'post',
+    headers: { 
+      'token': getToken(), 
+      'Content-Type': 'text/plain'
+     },
+    params
+  })
+
+// updateGoodsType
+export const updateGoodsType = (params) =>
+  request({
+    url: '/admin/goodstype/u',
+    method: 'put',
+    headers: { 
+      'token': getToken()
+     },
+    params
+  })
+
+// deleteGoodsType
+export const delGoodsType = (params) =>
+  request({
+    url: '/admin/goodstype/d',
+    method: 'delete',
+    headers: { 
+      'token': getToken(),
+      'Content-Type': 'text/plain'
+     },
+    params
+  })
