@@ -8,12 +8,10 @@ requireModule.keys().forEach((fileName) => {
   // 略過 index.js 這個檔案
   if (fileName === './index.js') return
   // 將下劃線分開來的檔名依序變為駝峰式(camelCase)命名
-  const moduleName = camelCase(
-    fileName.replace(/(\.\/|\.js)/g, ''),
-  )
+  const moduleName = camelCase(fileName.replace(/(\.\/|\.js)/g, ''))
 
   modules[moduleName] = {
-    ...requireModule(fileName).default,
+    ...requireModule(fileName).default
   }
 })
 
