@@ -2,7 +2,7 @@ import { request } from '@/service/request'
 
 // 取得token
 export const getToken = () =>{
-  return localStorage.getItem('token')
+  return Cookies.get('token')
 }
 
 // 獲得登入OTP碼 
