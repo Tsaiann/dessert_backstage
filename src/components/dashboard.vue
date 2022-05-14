@@ -12,7 +12,7 @@
           :default-value="[new Date(2022, 1, 1), new Date(2022, 2, 1)]"
         >
         </el-date-picker>
-        <el-button type="info"  data-space-left="0.5rem" >搜尋</el-button>
+        <el-button type="info" data-space-left="0.5rem">搜尋</el-button>
       </div>
       <div class="revenue" data-space-bottom="3rem">
         <h2>總營業額:</h2>
@@ -33,37 +33,36 @@
 
 <script>
 import guideLine from '@/components/guideLine.vue'
-import { ref, reactive, onMounted } from 'vue'
-
+import { ref, reactive } from 'vue'
 
 export default {
-  name:'Dashboard',
-  components:{
+  name: 'Dashboard',
+  components: {
     guideLine
   },
-  setup(){
+  setup() {
     const value = ref('')
     const cakeItem = reactive([
       {
-        name:'戚風蛋糕',
-        count:1
+        name: '戚風蛋糕',
+        count: 1
       },
       {
-        name:'杯子蛋糕',
-        count:2
+        name: '杯子蛋糕',
+        count: 2
       },
       {
-        name:'馬卡龍',
-        count:3
+        name: '馬卡龍',
+        count: 3
       },
       {
-        name:'其他',
-        count:4
+        name: '其他',
+        count: 4
       }
     ])
-    return{
+    return {
       value,
-      cakeItem,
+      cakeItem
     }
   }
 }

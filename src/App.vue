@@ -1,14 +1,14 @@
 <template>
-  <router-view/>
+  <router-view />
 </template>
 
 <script>
-import { ref,reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
-  name:'App',
-  setup(){
+  name: 'App',
+  setup() {
     /*const store = useStore()
     let beforeUnloadTime = ref(0)
     let gapTime = ref(0)
@@ -36,7 +36,7 @@ export default {
         localStorage.clear()
       })
     })*/
-    return{
+    return {
       //clearLocalStorage,
     }
   }
