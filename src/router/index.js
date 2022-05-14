@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Cookies from 'js-cookie'
+import store from '../store'
 
 const routes = [
   {
@@ -12,31 +12,37 @@ const routes = [
     name: 'Home',
     component: () => import('../views/Home.vue'),
     redirect:'/home/dashboard',
+    meta:{ requiresAuth: true },
     children:[
       {
         path: 'dashboard',
         name: 'Dashboard',
         component: () => import('../components/dashboard.vue'),
+        meta:{ requiresAuth: true },
       },
       {
         path: 'order',
         name: 'Order',
         component: () => import('../components/order.vue'),
+        meta:{ requiresAuth: true },
       },
       {
         path: 'product',
         name: 'Product',
         component: () => import('../components/product.vue'),
+        meta:{ requiresAuth: true },
       },
       {
         path: 'user',
         name: 'User',
         component: () => import('../components/user.vue'),
+        meta:{ requiresAuth: true },
       },
       {
         path: 'manager',
         name: 'Manager',
         component: () => import('../components/manager.vue'),
+        meta:{ requiresAuth: true },
       }
     ]
   }
@@ -47,18 +53,13 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach(async(to, from, next) => {
-  if(to.meta.requireAuth){
-    const userInfo = Cookies.get('login')
-    if(userInfo){
-      const token = JSON.parse(userInfo).token
-      if(token.length > 0){
-        next()
-      }else{
-        next({ name: 'Login'})
-      }
+router.beforeEach((to, from, next) => {
+  if(to.meta.requiresAuth){
+    const token = localStorage.getItem('token')
+    if(token !== ''){
+      next()
     }else{
-        next({ name: 'Login'})
+      next({ name: 'Login'})
     }
   }else{
     next()

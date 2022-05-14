@@ -1,7 +1,12 @@
 .product{
   .el-dialog{
     .el-table{
+      margin-top: 20px;
       @include el-table__border(300px);
+      &::before{
+        width: 0;
+        height: 0;
+      }
     }
   }
 }
