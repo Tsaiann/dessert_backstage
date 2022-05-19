@@ -8,7 +8,7 @@ export const getToken = () => {
 // 獲得登入OTP碼
 export const getOtp = (params) =>
   request({
-    url: '/member/otp',
+    url: '/admin/otp',
     method: 'get',
     headers: { 'Content-Type': 'text/plain' },
     params
@@ -16,7 +16,7 @@ export const getOtp = (params) =>
 // login
 export const login = (params) =>
   request({
-    url: '/member/login',
+    url: '/admin/login',
     method: 'post',
     headers: {
       'Content-Type': 'text/plain'
@@ -36,7 +36,7 @@ export const productList = (params) =>
   })
 
 // addProduct
-export const addProduct = (params) =>
+export const addGoods = (params) =>
   request({
     url: '/admin/goods/c',
     method: 'post',
@@ -51,7 +51,7 @@ export const addProduct = (params) =>
 export const updateProduct = (params) =>
   request({
     url: '/admin/goods/u',
-    method: 'put',
+    method: 'post',
     headers: {
       token: getToken(),
       'Content-Type': 'application/json'
