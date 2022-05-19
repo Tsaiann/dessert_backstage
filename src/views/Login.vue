@@ -17,14 +17,14 @@
 </template>
 
 <script>
-import { reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getOtp, login } from '@/service/api'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 
 export default {
-  name: 'LoginPage',
+  name: 'Login',
   setup() {
     const store = useStore()
     const router = useRouter()
