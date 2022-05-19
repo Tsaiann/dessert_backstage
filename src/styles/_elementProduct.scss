@@ -1,4 +1,32 @@
 .product{
+  .upload{
+    @include flexBox(row, center, flex-start);
+    @include boxSizing;
+    .el-input{
+      width: 130px;
+      margin-right: 5px;
+    }
+  }
+  .upload-customize{
+    @include flexBox(row, center, center);
+    position: relative;
+    width: 100px;
+    height: 30px;
+    border: 1px solid #E0E0E0;
+    background: #E0E0E0;
+    border-radius: 5px;
+    font-family: '微軟雅黑體';
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 1px;
+    }
+  }
   .el-dialog{
     .el-table{
       margin-top: 20px;
@@ -6,6 +34,31 @@
       &::before{
         width: 0;
         height: 0;
+      }
+    }
+    .specs{
+      .el-input{
+        width: 70px;
+      }
+    }
+    .addSpecs{
+      .el-input{
+        width: 100px;
+        vertical-align: baseline;
+        border-radius: 100%;
+        margin: 5px;
+        .el-input__inner{
+          background: 	#F0F0F0;
+          border:0;
+        }
+        .el-input-group__append{
+          padding: 0 10px;
+          background: 	#F0F0F0;
+          border: 0;
+          .el-button .el-button--defalut{
+            width: 30px;
+          }
+        }
       }
     }
   }
