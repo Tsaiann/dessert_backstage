@@ -1,8 +1,10 @@
 .page{
   @include size(100%,100%);
+  @include boxSizing;
   min-width: 1100px;
   .common_content{
-    @include size(100%,100%);
+    @include size(100%,688px);
+    @include boxSizing;
     padding: 30px;
     .common_state{
       @include flexBox(row,center,space-between);
@@ -13,11 +15,12 @@
     }
     .common_data{
       @include boxSizing;
-      @include size(100%,100%);
+      @include size(100%,85%);
       .table_data{
         @include boxSizing;
         border: 1px solid #000;
         height: 90%;
+        overflow: auto;
       }
     }
   }

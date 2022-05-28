@@ -21,9 +21,9 @@ export const login = (params) =>
     headers: {
       'Content-Type': 'text/plain'
     },
-    params
+    data: params
   })
-// getProductList
+// 取得所有商品資料
 export const productList = (params) =>
   request({
     url: '/admin/goods/r',
@@ -32,11 +32,11 @@ export const productList = (params) =>
       token: getToken(),
       'Content-Type': 'application/json'
     },
-    params
+    data: params
   })
 
-// addProduct
-export const addGoods = (params) =>
+// 新增商品資料
+export const addGoodsList = (data) =>
   request({
     url: '/admin/goods/c',
     method: 'post',
@@ -44,11 +44,11 @@ export const addGoods = (params) =>
       token: getToken(),
       'Content-Type': 'application/json'
     },
-    params
+    data: data
   })
 
-// updateProduct
-export const updateProduct = (params) =>
+// 修改商品資料
+export const updateProduct = (data) =>
   request({
     url: '/admin/goods/u',
     method: 'post',
@@ -56,10 +56,10 @@ export const updateProduct = (params) =>
       token: getToken(),
       'Content-Type': 'application/json'
     },
-    params
+    data: data
   })
 
-// deleteProduct
+// 刪除商品資料
 export const delProduct = (params) =>
   request({
     url: '/admin/goods/d?ID=8',
@@ -70,11 +70,22 @@ export const delProduct = (params) =>
     },
     params
   })
+// 刪除商品規格
+export const delSpecs = (params) =>
+  request({
+    url: '/admin/goods/specs/d',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    params
+  })
 
-// getGoodsTypeList
+// 獲得商品類別資料
 export const goodsTypeList = (params) =>
   request({
-    url: '/admin/goodstype/r',
+    url: '/admin/goods/goodstype/r',
     method: 'post',
     headers: {
       token: getToken(),
@@ -83,10 +94,10 @@ export const goodsTypeList = (params) =>
     params
   })
 
-// addGoodsType
+// 新增商品類別
 export const addGoodType = (params) =>
   request({
-    url: '/admin/goodstype/c',
+    url: '/admin/goods/goodstype/c',
     method: 'post',
     headers: {
       token: getToken(),
@@ -95,21 +106,21 @@ export const addGoodType = (params) =>
     params
   })
 
-// updateGoodsType
+// 更新商品類別資料
 export const updateGoodsType = (params) =>
   request({
-    url: '/admin/goodstype/u',
-    method: 'put',
+    url: '/admin/goods/goodstype/u',
+    method: 'post',
     headers: {
       token: getToken()
     },
     params
   })
 
-// deleteGoodsType
+// 刪除商品類別
 export const delGoodsType = (params) =>
   request({
-    url: '/admin/goodstype/d',
+    url: '/admin/goods/goodstype/d',
     method: 'delete',
     headers: {
       token: getToken(),

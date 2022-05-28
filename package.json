@@ -12,6 +12,7 @@
     "core-js": "^3.6.5",
     "element-plus": "^1.0.2-beta.48",
     "js-cookie": "^3.0.1",
+    "qs": "^6.10.3",
     "vue": "^3.0.0",
     "vue-axios": "^3.4.1",
     "vue-router": "^4.0.14",

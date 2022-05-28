@@ -5,27 +5,35 @@
       <div class="common_state" data-space-bottom="2rem">
         <div class="row horizontal v_center">
           <span data-space-left="1rem">商品分類：</span>
-          <el-select v-model="goodsType" size="small" data-space-left="1rem" width="30">
-            <el-option v-for="(item, i) in typeTableData" :key="i" :label="item.Name" :value="item.Name"></el-option>
+          <el-select v-model="searchList.GoodsType" size="small" data-space-left="1rem" width="30">
+            <el-option v-for="(item, i) in typeTableData" :key="i" :label="item.Name" :value="item.ID"></el-option>
           </el-select>
           <span data-space-left="1rem">商品名稱：</span>
           <div data-width="40%">
-            <el-input v-model="nameInput" placeholder="請輸入商品名稱" clearable size="small" />
+            <el-input v-model="searchList.GoodsName" placeholder="請輸入商品名稱" clearable size="small" />
           </div>
         </div>
         <div class="row horizontal h_end" data-width="30%" data-space-right="1rem">
           <el-button type="info" plain size="small" @click="reset">重置</el-button>
-          <el-button type="info" data-space-left="0.5rem" size="small">搜尋</el-button>
+          <el-button type="info" data-space-left="0.5rem" size="small" @click="handleSearch">搜尋</el-button>
         </div>
       </div>
       <div class="common_data">
         <div class="row horizontal v_center" data-space-bottom="1rem">
           <div class="row horizontal v_center">
             <span>每頁筆數：</span>
-            <el-select v-model="pagination" size="small">
-              <el-option v-for="item in productPagination" :key="item.value" :label="item.label" :value="item.value"></el-option>
-            </el-select>
-            <el-pagination :page-size="20" :pager-count="11" layout="prev, pager, next" :total="1000" data-space-left="1rem" width="900"></el-pagination>
+            <div>
+              <el-pagination
+                :currentPage="searchList.Page"
+                :page-size="searchList.PageLimit"
+                layout="sizes, total, prev, pager, next"
+                :total="tableDataTotal.length"
+                :page-sizes="[5, 10, 15, 20]"
+                @size-change="sizeChange"
+                @current-change="pageChange"
+                width="900"
+              />
+            </div>
           </div>
           <div class="row horizontal h_end" data-width="15%">
             <el-button type="primary" plain size="small" @click="dialogTypeVisible = true">分類管理</el-button>
@@ -59,15 +67,17 @@
             <el-dialog v-model="dialogProductVisible" :title="dialogTitle" width="500px" @close="handleClose">
               <hr />
               <el-form :model="addProductForm">
-                <el-form-item label="前台顯示：" :model="addProductForm.Show">
-                  <el-radio v-model="checked" label="true">是</el-radio>
-                  <el-radio v-model="checked" label="false">否</el-radio>
+                <el-form-item label="前台顯示：">
+                  <el-radio-group v-model="addProductForm.Show">
+                    <el-radio :label="true">是</el-radio>
+                    <el-radio :label="false">否</el-radio>
+                  </el-radio-group>
                 </el-form-item>
                 <el-form-item label="新品期間：">
-                  <el-date-picker v-model="newProductTime" type="date" placeholder="請選擇日期" />
+                  <el-date-picker type="date" placeholder="請選擇日期" />
                 </el-form-item>
                 <el-form-item label="分類：">
-                  <el-select v-model="addProductForm.type" placeholder="請選擇" size="small">
+                  <el-select v-model="addProductForm.GoodsTypeID" placeholder="請選擇" size="small">
                     <el-option v-for="(item, i) in typeTableData" :key="i" :label="item.Name" :value="item.ID" />
                   </el-select>
                 </el-form-item>
@@ -84,7 +94,7 @@
                   <div class="addSpecs row horizontal wrap">
                     <el-input v-for="(item, i) in addSpecsList.list" :key="i" size="small" v-model="item.Specs">
                       <template #append>
-                        <el-button size="small" circle icon="el-icon-error" @click="deleteSpecs(i)" />
+                        <el-button size="small" circle icon="el-icon-error" @click="deleteSpecs(i, item.ID)" />
                       </template>
                     </el-input>
                   </div>
@@ -92,15 +102,23 @@
                 <el-form-item label="金額：">
                   <el-input v-model="addProductForm.UnitPrice" autocomplete="off" size="small" />
                 </el-form-item>
-                <el-form-item label="圖片上傳：" class="row horizontal v_center">
+                <el-form-item label="圖片上傳：">
                   <div class="upload">
-                    <el-input type="text" placeholder="圖片別名(Ident)" size="small" />
+                    <el-input v-model="imgData.ident" type="text" placeholder="圖片別名(Ident)" size="small" />
                     <label class="upload-customize">
                       <span>選擇圖片</span>
                       <i class="el-icon-upload"></i>
                       <input type="file" @change="selectFile($event)" />
                     </label>
-                    <span></span>
+                    <el-button type="primary" size="small" @click="handleUpload()">上傳圖片</el-button>
+                  </div>
+                  <span class="upload-text">{{ imgData.fileName }}</span>
+                  <div class="upload-list" v-for="(item, i) in imgList" :key="i">
+                    <div class="row horizontal v_center">
+                      <img :src="item.img" alt="" />
+                      <p data-space-left="1rem">{{ item.fileName }}</p>
+                    </div>
+                    <el-button icon="el-icon-close" size="small" circle @click="deleteimg(item.ID)" />
                   </div>
                 </el-form-item>
                 <el-form-item label="商品說明：">
@@ -143,7 +161,7 @@
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive, onMounted } from 'vue'
-import { addGoods, productList, goodsTypeList, addGoodType, delGoodsType, delProduct, updateProduct } from '@/service/api'
+import { addGoodsList, productList, goodsTypeList, addGoodType, delGoodsType, delProduct, updateProduct, delSpecs } from '@/service/api'
 import { async } from 'q'
 
 export default {
@@ -152,51 +170,77 @@ export default {
     guideLine
   },
   setup() {
-    const goodsType = ref('')
-    const nameInput = ref('')
-    const pagination = ref('20')
+    const dialogTitle = ref('')
+    const tableDataTotal = ref('')
+    const submitStatus = ref('')
+    const searchStatus = ref('')
+    const searchList = reactive({
+      Page: 1,
+      PageLimit: 20,
+      GoodsName: '',
+      GoodsType: null
+    })
+    let oldSearchList = reactive({})
     let dialogProductVisible = ref(false)
     let dialogTypeVisible = ref(false)
-    const checked = ref('true')
-    const textarea = ref('')
-    const dialogTitle = ref('')
-    const submitStatus = ref('')
-    const newProductTime = ref('')
     let tableData = ref([])
     let typeTableData = ref([])
     let addSpecsList = reactive({ list: [] })
     let addSpecsCount = reactive([{ Specs: '' }])
-    const goodsTypeForm = reactive({
-      name: ''
+    const goodsTypeForm = reactive({ name: '' })
+    let imgList = ref([])
+    let imgData = reactive({
+      ID: '',
+      img: '',
+      ident: '',
+      file: null,
+      fileName: ''
     })
 
-    const productPagination = [
-      {
-        value: 1,
-        label: '5'
-      },
-      {
-        value: 2,
-        label: '10'
-      },
-      {
-        value: 3,
-        label: '15'
-      },
-      {
-        value: 4,
-        label: '20'
-      }
-    ]
     const addProductForm = reactive({
       Name: '',
-      Show: '',
+      Show: null,
       GoodsTypeID: '',
       GoodsSpecs: [],
       UnitPrice: '',
       ImagesIdnet: '',
       Description: ''
     })
+    //改變頁碼
+    const pageChange = (val) => {
+      searchList.Page = val - 1
+      searchStatus.value = 'change'
+      handleSearch()
+    }
+    //改變資料數
+    const sizeChange = (val) => {
+      searchStatus.value = 'change'
+      searchList.PageLimit = val
+      searchList.Page -= 1
+      handleSearch()
+    }
+    //搜尋指定商品
+    const handleSearch = async () => {
+      if (searchStatus.value === 'change') {
+        oldSearchList = searchList
+        const data = oldSearchList
+        const res = await productList(data)
+        console.log(res)
+        tableData.value = [...res.data.Data]
+        searchList.Page += 1
+        searchStatus.value = ''
+      } else {
+        searchList.Page -= 1
+        const data = searchList
+        const res = await productList(data)
+        console.log(res)
+        if (res.data.Code === 200) {
+          tableData.value = [...res.data.Data]
+          tableDataTotal.value = tableData.value
+          searchList.Page += 1
+        }
+      }
+    }
     //增加商品內容
     const addProduct = () => {
       dialogProductVisible.value = true
@@ -208,18 +252,29 @@ export default {
       addSpecsList.list.push({ Specs: '' })
     }
     //刪除商品規格
-    const deleteSpecs = (index) => {
+    const deleteSpecs = (index, id) => {
       ElMessageBox.confirm('確定要刪除資料？', '警告', {
         confirmButtonText: '確定',
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
-          addSpecsList.list.splice(index, 1)
-          ElMessage({
-            type: 'success',
-            message: '已刪除資料'
-          })
+        .then(async () => {
+          if (submitStatus.value === 'edit') {
+            const data = { ID: id }
+            const res = await delSpecs(data)
+            console.log(res, data)
+            addSpecsList.list.splice(index, 1)
+            ElMessage({
+              type: 'success',
+              message: '已刪除資料'
+            })
+          } else {
+            addSpecsList.list.splice(index, 1)
+            ElMessage({
+              type: 'success',
+              message: '已刪除資料'
+            })
+          }
         })
         .catch(() => {
           ElMessage({
@@ -231,8 +286,9 @@ export default {
     //post 新增商品資料
     const handleAddGoods = async () => {
       addProductForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
+      addProductForm.UnitPrice = parseInt(addProductForm.UnitPrice)
       const data = addProductForm
-      const res = await addGoods(data)
+      const res = await addGoodsList(data)
       console.log(res)
       getProdcutList()
       dialogProductVisible.value = false
@@ -242,6 +298,7 @@ export default {
       const data = {}
       const res = await productList(data)
       tableData.value = [...res.data.Data]
+      tableDataTotal.value = tableData.value
       console.log(tableData)
     })
     //修改商品內容
@@ -250,13 +307,19 @@ export default {
       submitStatus.value = 'edit'
       dialogTitle.value = '修改商品'
       addProductForm.Name = obj.Name
+      addProductForm.Show = obj.Show
       addProductForm.GoodsTypeID = obj.GoodsTypeID
       addProductForm.UnitPrice = obj.UnitPrice
       addProductForm.Description = obj.Description
+      addProductForm.ID = obj.ID
+      addSpecsCount[0].Specs = obj.GoodsSpecs[0].Specs
+      addSpecsCount[0].ID = obj.GoodsSpecs[0].ID
+      addSpecsList.list = obj.GoodsSpecs.slice(1)
     }
     //post 編輯過後的商品資料
     const handleEditGoods = async () => {
       addProductForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
+      addProductForm.UnitPrice = parseInt(addProductForm.UnitPrice)
       const data = addProductForm
       const res = await updateProduct(data)
       console.log(res)
@@ -339,29 +402,123 @@ export default {
       Object.keys(addProductForm).forEach((item) => {
         addProductForm[item] = ''
       })
+      addProductForm.GoodsSpecs = []
       addSpecsList.list = []
       addSpecsCount[0].Specs = ''
+      delete addProductForm.ID
+      delete addSpecsCount[0].ID
+      console.log(addProductForm)
+    }
+    //選擇圖片
+    const selectFile = (event) => {
+      const file = event.target.files[0]
+      const fileSize = file.size / 1024
+      imgData.file = file
+      imgData.fileName = file.name
+      if (fileSize > 200) {
+        imgData.file = null
+        imgData.fileName = ''
+        ElMessage({
+          message: '檔案不可大於 200KB',
+          type: 'error'
+        })
+        return
+      }
+    }
+    //上傳圖片
+    const handleUpload = () => {
+      if (imgData.ident === '') {
+        ElMessage({
+          message: '圖片別名不可為空',
+          type: 'error'
+        })
+        return
+      } else {
+        const token = localStorage.getItem('token')
+        const formData = new FormData()
+        formData.append('Ident', imgData.ident)
+        formData.append('Img', imgData.file)
+        const options = {
+          method: 'POST',
+          headers: {
+            token: token
+          },
+          body: formData
+        }
+        fetch('/api' + '/admin/image/c', options)
+          .then((res) => res.json())
+          .then((res) => {
+            console.log(res)
+            imgData.img = res.Data.Url
+            imgData.ID = res.Data.ID
+            imgList.value.push(JSON.parse(JSON.stringify(imgData)))
+            Object.keys(imgData).forEach((item) => {
+              imgData[item] = ''
+            })
+            imgData.file = null
+          })
+      }
+    }
+    //刪除圖片
+    const deleteimg = (id) => {
+      ElMessageBox.confirm('確定要刪除資料？', '警告', {
+        confirmButtonText: '確定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          const token = localStorage.getItem('token')
+          const myHeaders = new Headers()
+          myHeaders.append('token', token)
+          myHeaders.append('Content-Type', 'application/json')
+          const options = {
+            method: 'POST',
+            headers: myHeaders,
+            body: { id: id }
+          }
+          fetch('/api' + '/admin/image/d', options)
+            .then((res) => res.text())
+            .then((res) => {
+              console.log(res)
+            })
+            .catch((error) => {
+              console.log(error)
+            })
+          /*.then((res) => {
+              console.log(res)
+            })
+          ElMessage({
+            type: 'success',
+            message: '已刪除資料'
+          })*/
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消刪除'
+          })
+        })
     }
     //重置搜尋列表
     const reset = () => {
-      goodsType.value = ''
-      nameInput.value = ''
+      searchList.Page = 1
+      searchList.PageLimit = 20
+      searchList.GoodsName = ''
+      searchList.GoodsType = null
+      getProdcutList()
     }
 
     return {
-      goodsType,
-      nameInput,
+      tableDataTotal,
+      searchStatus,
+      oldSearchList,
+      searchList,
       addSpecsList,
       addSpecsCount,
-      productPagination,
-      pagination,
       tableData,
-      newProductTime,
       dialogProductVisible,
       dialogTypeVisible,
-      checked,
       addProductForm,
-      textarea,
       submitStatus,
       dialogTitle,
       deleteProduct,
@@ -378,7 +535,15 @@ export default {
       handleAddGoods,
       handleSubmit,
       handleClose,
-      deleteSpecs
+      deleteSpecs,
+      selectFile,
+      imgList,
+      imgData,
+      handleUpload,
+      deleteimg,
+      pageChange,
+      handleSearch,
+      sizeChange
     }
   }
 }
