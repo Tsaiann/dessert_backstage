@@ -118,7 +118,7 @@
                       <img :src="item.img" alt="" />
                       <p data-space-left="1rem">{{ item.fileName }}</p>
                     </div>
-                    <el-button icon="el-icon-close" size="small" circle @click="deleteimg(item.ID)" />
+                    <el-button icon="el-icon-close" size="small" circle @click="deleteimg(i, item.ID)" />
                   </div>
                 </el-form-item>
                 <el-form-item label="商品說明：">
@@ -161,8 +161,7 @@
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive, onMounted } from 'vue'
-import { addGoodsList, productList, goodsTypeList, addGoodType, delGoodsType, delProduct, updateProduct, delSpecs } from '@/service/api'
-import { async } from 'q'
+import { addGoodsList, productList, goodsTypeList, addGoodType, delGoodsType, delProduct, updateProduct, delSpecs, delImg } from '@/service/api'
 
 export default {
   name: 'Product',
@@ -448,7 +447,6 @@ export default {
         fetch('/api' + '/admin/image/c', options)
           .then((res) => res.json())
           .then((res) => {
-            console.log(res)
             imgData.img = res.Data.Url
             imgData.ID = res.Data.ID
             imgList.value.push(JSON.parse(JSON.stringify(imgData)))
@@ -460,37 +458,21 @@ export default {
       }
     }
     //刪除圖片
-    const deleteimg = (id) => {
+    const deleteimg = (index, id) => {
       ElMessageBox.confirm('確定要刪除資料？', '警告', {
         confirmButtonText: '確定',
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
-          const token = localStorage.getItem('token')
-          const myHeaders = new Headers()
-          myHeaders.append('token', token)
-          myHeaders.append('Content-Type', 'application/json')
-          const options = {
-            method: 'POST',
-            headers: myHeaders,
-            body: { id: id }
-          }
-          fetch('/api' + '/admin/image/d', options)
-            .then((res) => res.text())
-            .then((res) => {
-              console.log(res)
-            })
-            .catch((error) => {
-              console.log(error)
-            })
-          /*.then((res) => {
-              console.log(res)
-            })
+        .then(async () => {
+          const data = { id: id }
+          const res = await delImg(data)
+          console.log(res)
+          imgList.value.splice(index, 1)
           ElMessage({
             type: 'success',
             message: '已刪除資料'
-          })*/
+          })
         })
         .catch(() => {
           ElMessage({

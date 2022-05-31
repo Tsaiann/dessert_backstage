@@ -128,3 +128,15 @@ export const delGoodsType = (params) =>
     },
     params
   })
+
+// 刪除商品照片
+export const delImg = (data) =>
+  request({
+    url: '/admin/image/d',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
