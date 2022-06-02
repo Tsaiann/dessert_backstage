@@ -118,7 +118,7 @@ export const updateGoodsType = (params) =>
   })
 
 // 刪除商品類別
-export const delGoodsType = (params) =>
+export const delGoodType = (params) =>
   request({
     url: '/admin/goods/goodstype/d',
     method: 'delete',

@@ -28,7 +28,7 @@
                 :page-size="searchList.PageLimit"
                 layout="sizes, total, prev, pager, next"
                 :total="tableDataTotal.length"
-                :page-sizes="[5, 10, 15, 20]"
+                :page-sizes="[10, 15, 20]"
                 @size-change="sizeChange"
                 @current-change="pageChange"
                 width="900"
@@ -50,7 +50,7 @@
                   <el-table-column prop="anotherName" label="別名" width="130" />
                   <el-table-column label="操作" align="center">
                     <template #default="scope">
-                      <el-button type="danger" plain size="small" @click="delType(scope.row.ID)">刪除</el-button>
+                      <el-button type="danger" plain size="small" @click="delGoodsType(scope.row.ID)">刪除</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -63,12 +63,12 @@
                 </span>
               </template>
             </el-dialog>
-            <el-button type="primary" data-space-left="0.5rem" size="small" @click="addProduct()">新增商品 ＋</el-button>
-            <el-dialog v-model="dialogProductVisible" :title="dialogTitle" width="500px" @close="handleClose">
+            <el-button type="primary" data-space-left="0.5rem" size="small" @click="addGoods()">新增商品 ＋</el-button>
+            <el-dialog v-model="dialogGoodsVisible" :title="dialogTitle" width="500px" @close="handleClose">
               <hr />
-              <el-form :model="addProductForm">
+              <el-form :model="addGoodsForm">
                 <el-form-item label="前台顯示：">
-                  <el-radio-group v-model="addProductForm.Show">
+                  <el-radio-group v-model="addGoodsForm.Show">
                     <el-radio :label="true">是</el-radio>
                     <el-radio :label="false">否</el-radio>
                   </el-radio-group>
@@ -77,12 +77,12 @@
                   <el-date-picker type="date" placeholder="請選擇日期" />
                 </el-form-item>
                 <el-form-item label="分類：">
-                  <el-select v-model="addProductForm.GoodsTypeID" placeholder="請選擇" size="small">
+                  <el-select v-model="addGoodsForm.GoodsTypeID" placeholder="請選擇" size="small">
                     <el-option v-for="(item, i) in typeTableData" :key="i" :label="item.Name" :value="item.ID" />
                   </el-select>
                 </el-form-item>
                 <el-form-item label="名稱：">
-                  <el-input v-model="addProductForm.Name" autocomplete="off" size="small" />
+                  <el-input v-model="addGoodsForm.Name" autocomplete="off" size="small" />
                 </el-form-item>
                 <el-form-item label="商品規格：">
                   <div class="specs">
@@ -100,7 +100,7 @@
                   </div>
                 </el-form-item>
                 <el-form-item label="金額：">
-                  <el-input v-model="addProductForm.UnitPrice" autocomplete="off" size="small" />
+                  <el-input v-model="addGoodsForm.UnitPrice" autocomplete="off" size="small" />
                 </el-form-item>
                 <el-form-item label="圖片上傳：">
                   <div class="upload">
@@ -122,13 +122,13 @@
                   </div>
                 </el-form-item>
                 <el-form-item label="商品說明：">
-                  <el-input v-model="addProductForm.Description" type="textarea" placeholder="請輸入內容" />
+                  <el-input v-model="addGoodsForm.Description" type="textarea" placeholder="請輸入內容" />
                 </el-form-item>
               </el-form>
               <hr />
               <template #footer>
                 <span class="dialog-footer">
-                  <el-button @click="dialogProductVisible = false">取消</el-button>
+                  <el-button @click="dialogGoodsVisible = false">取消</el-button>
                   <el-button type="primary" @click="handleSubmit()">確定</el-button>
                 </span>
               </template>
@@ -145,8 +145,8 @@
             <el-table-column label="操作" width="270" align="center">
               <template #default="scope">
                 <div class="row horizontal center">
-                  <el-button type="warning" plain size="small" @click="editProduct(scope.row)">查看/修改</el-button>
-                  <el-button type="danger" plain size="small" @click="deleteProduct(scope.row.ID)">刪除</el-button>
+                  <el-button type="warning" plain size="small" @click="editGoods(scope.row)">查看/修改</el-button>
+                  <el-button type="danger" plain size="small" @click="deleteGoods(scope.row.ID)">刪除</el-button>
                 </div>
               </template>
             </el-table-column>
@@ -159,9 +159,10 @@
 
 <script>
 import guideLine from '@/components/guideLine.vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { ref, reactive, onMounted } from 'vue'
-import { addGoodsList, productList, goodsTypeList, addGoodType, delGoodsType, delProduct, updateProduct, delSpecs, delImg } from '@/service/api'
+import { callApi, deleteMessage } from '@/utils/callApi'
+import { addGoodsList, productList, goodsTypeList, addGoodType, delGoodType, delProduct, updateProduct, delSpecs, delImg } from '@/service/api'
 
 export default {
   name: 'Product',
@@ -179,14 +180,14 @@ export default {
       GoodsName: '',
       GoodsType: null
     })
+    const goodsTypeForm = reactive({ name: '' })
     let oldSearchList = reactive({})
-    let dialogProductVisible = ref(false)
+    let dialogGoodsVisible = ref(false)
     let dialogTypeVisible = ref(false)
     let tableData = ref([])
     let typeTableData = ref([])
     let addSpecsList = reactive({ list: [] })
     let addSpecsCount = reactive([{ Specs: '' }])
-    const goodsTypeForm = reactive({ name: '' })
     let imgList = ref([])
     let imgData = reactive({
       ID: '',
@@ -196,7 +197,7 @@ export default {
       fileName: ''
     })
 
-    const addProductForm = reactive({
+    const addGoodsForm = reactive({
       Name: '',
       Show: null,
       GoodsTypeID: '',
@@ -205,13 +206,119 @@ export default {
       ImagesIdnet: '',
       Description: ''
     })
+    //獲得所有商品資料
+    const getGoodsList = onMounted(() => {
+      const data = {}
+      callApi(productList, data, (res) => {
+        tableData.value = [...res.data.Data]
+        tableDataTotal.value = tableData.value
+      })
+    })
+    //獲得所有商品種類資料
+    const getGoodsType = onMounted(() => {
+      const data = {}
+      callApi(goodsTypeList, data, (res) => {
+        typeTableData.value = [...res.data.Data]
+      })
+    })
+    //新增商品種類
+    const addGoodsType = () => {
+      const data = goodsTypeForm
+      callApi(addGoodType, data, () => {
+        getGoodsType()
+        goodsTypeForm.name = ''
+      })
+    }
+    //刪除商品種類
+    const delGoodsType = (id) => {
+      deleteMessage(() => {
+        const data = { ID: id }
+        callApi(delGoodType, data, () => {
+          getGoodsType()
+        })
+      })
+    }
+    //打開新增商品內容欄位
+    const addGoods = () => {
+      dialogGoodsVisible.value = true
+      submitStatus.value = 'add'
+      dialogTitle.value = '新增商品'
+    }
+    //新增商品資料
+    const handleAddGoods = () => {
+      addGoodsForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
+      addGoodsForm.UnitPrice = parseInt(addGoodsForm.UnitPrice)
+      const data = addGoodsForm
+      callApi(addGoodsList, data, () => {
+        getGoodsList()
+        dialogGoodsVisible.value = false
+      })
+    }
+    //刪除商品內容
+    const deleteGoods = (id) => {
+      deleteMessage(() => {
+        const data = { ID: id }
+        callApi(delProduct, data, () => {
+          getGoodsList()
+        })
+      })
+    }
+    //增加商品規格清單
+    const addSpecs = () => {
+      addSpecsList.list.push({ Specs: '' })
+    }
+    //刪除商品規格
+    const deleteSpecs = (index, id) => {
+      deleteMessage(() => {
+        if (submitStatus.value === 'edit') {
+          const data = { ID: id }
+          callApi(delSpecs, data, () => {
+            addSpecsList.list.splice(index, 1)
+          })
+        } else {
+          addSpecsList.list.splice(index, 1)
+        }
+      })
+    }
+    //打開修改商品內容欄位
+    const editGoods = (obj) => {
+      dialogGoodsVisible.value = true
+      submitStatus.value = 'edit'
+      dialogTitle.value = '修改商品'
+      addGoodsForm.Name = obj.Name
+      addGoodsForm.Show = obj.Show
+      addGoodsForm.GoodsTypeID = obj.GoodsTypeID
+      addGoodsForm.UnitPrice = obj.UnitPrice
+      addGoodsForm.Description = obj.Description
+      addGoodsForm.ID = obj.ID
+      addGoodsForm.ImagesIdnet = obj.ImagesIdnet
+      addSpecsCount[0].Specs = obj.GoodsSpecs[0].Specs
+      addSpecsCount[0].ID = obj.GoodsSpecs[0].ID
+      addSpecsList.list = obj.GoodsSpecs.slice(1)
+    }
+    //編輯商品資料
+    const handleEditGoods = () => {
+      addGoodsForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
+      addGoodsForm.UnitPrice = parseInt(addGoodsForm.UnitPrice)
+      const data = addGoodsForm
+      callApi(updateProduct, data, () => {
+        getGoodsList()
+        dialogGoodsVisible.value = false
+      })
+    }
+    //判斷是要新增還是編輯
+    const handleSubmit = () => {
+      submitStatus.value === 'edit' ? handleEditGoods() : handleAddGoods()
+      submitStatus.value = ''
+    }
+
     //改變頁碼
     const pageChange = (val) => {
       searchList.Page = val - 1
       searchStatus.value = 'change'
       handleSearch()
     }
-    //改變資料數
+    //改變限制資料數
     const sizeChange = (val) => {
       searchStatus.value = 'change'
       searchList.PageLimit = val
@@ -240,173 +347,16 @@ export default {
         }
       }
     }
-    //增加商品內容
-    const addProduct = () => {
-      dialogProductVisible.value = true
-      submitStatus.value = 'add'
-      dialogTitle.value = '新增商品'
-    }
-    //增加商品規格清單
-    const addSpecs = () => {
-      addSpecsList.list.push({ Specs: '' })
-    }
-    //刪除商品規格
-    const deleteSpecs = (index, id) => {
-      ElMessageBox.confirm('確定要刪除資料？', '警告', {
-        confirmButtonText: '確定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(async () => {
-          if (submitStatus.value === 'edit') {
-            const data = { ID: id }
-            const res = await delSpecs(data)
-            console.log(res, data)
-            addSpecsList.list.splice(index, 1)
-            ElMessage({
-              type: 'success',
-              message: '已刪除資料'
-            })
-          } else {
-            addSpecsList.list.splice(index, 1)
-            ElMessage({
-              type: 'success',
-              message: '已刪除資料'
-            })
-          }
-        })
-        .catch(() => {
-          ElMessage({
-            type: 'info',
-            message: '已取消刪除'
-          })
-        })
-    }
-    //post 新增商品資料
-    const handleAddGoods = async () => {
-      addProductForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
-      addProductForm.UnitPrice = parseInt(addProductForm.UnitPrice)
-      const data = addProductForm
-      const res = await addGoodsList(data)
-      console.log(res)
-      getProdcutList()
-      dialogProductVisible.value = false
-    }
-    //獲得所有商品資料
-    const getProdcutList = onMounted(async () => {
-      const data = {}
-      const res = await productList(data)
-      tableData.value = [...res.data.Data]
-      tableDataTotal.value = tableData.value
-      console.log(tableData)
-    })
-    //修改商品內容
-    const editProduct = (obj) => {
-      dialogProductVisible.value = true
-      submitStatus.value = 'edit'
-      dialogTitle.value = '修改商品'
-      addProductForm.Name = obj.Name
-      addProductForm.Show = obj.Show
-      addProductForm.GoodsTypeID = obj.GoodsTypeID
-      addProductForm.UnitPrice = obj.UnitPrice
-      addProductForm.Description = obj.Description
-      addProductForm.ID = obj.ID
-      addSpecsCount[0].Specs = obj.GoodsSpecs[0].Specs
-      addSpecsCount[0].ID = obj.GoodsSpecs[0].ID
-      addSpecsList.list = obj.GoodsSpecs.slice(1)
-    }
-    //post 編輯過後的商品資料
-    const handleEditGoods = async () => {
-      addProductForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
-      addProductForm.UnitPrice = parseInt(addProductForm.UnitPrice)
-      const data = addProductForm
-      const res = await updateProduct(data)
-      console.log(res)
-      getProdcutList()
-      dialogProductVisible.value = false
-    }
-    //判斷是要新增還是編輯
-    const handleSubmit = () => {
-      if (submitStatus.value === 'edit') {
-        handleEditGoods()
-        submitStatus.value = ''
-      } else if (submitStatus.value === 'add') {
-        handleAddGoods()
-        submitStatus.value = ''
-      }
-    }
-    //刪除商品內容
-    const deleteProduct = (id) => {
-      ElMessageBox.confirm('確定要刪除資料？', '警告', {
-        confirmButtonText: '確定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(async () => {
-          const data = { ID: id }
-          const res = await delProduct(data)
-          console.log(res)
-          getProdcutList()
-          ElMessage({
-            type: 'success',
-            message: '已刪除資料'
-          })
-        })
-        .catch(() => {
-          ElMessage({
-            type: 'info',
-            message: '已取消刪除'
-          })
-        })
-    }
-    //獲得所有商品種類資料
-    const getGoodsType = onMounted(async () => {
-      const data = {}
-      const res = await goodsTypeList(data)
-      typeTableData.value = [...res.data.Data]
-    })
-    //新增商品種類
-    const addGoodsType = async () => {
-      const data = goodsTypeForm
-      const res = await addGoodType(data)
-      console.log(res)
-      getGoodsType()
-      goodsTypeForm.name = ''
-    }
-    //刪除商品種類
-    const delType = (id) => {
-      ElMessageBox.confirm('確定要刪除資料？', '警告', {
-        confirmButtonText: '確定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(async () => {
-          const data = { ID: id }
-          const res = await delGoodsType(data)
-          console.log(res)
-          getGoodsType()
-          ElMessage({
-            type: 'success',
-            message: '已刪除資料'
-          })
-        })
-        .catch(() => {
-          ElMessage({
-            type: 'info',
-            message: '已取消刪除'
-          })
-        })
-    }
+
     const handleClose = () => {
-      Object.keys(addProductForm).forEach((item) => {
-        addProductForm[item] = ''
+      Object.keys(addGoodsForm).forEach((item) => {
+        addGoodsForm[item] = ''
       })
-      addProductForm.GoodsSpecs = []
+      addGoodsForm.GoodsSpecs = []
       addSpecsList.list = []
       addSpecsCount[0].Specs = ''
-      delete addProductForm.ID
+      delete addGoodsForm.ID
       delete addSpecsCount[0].ID
-      console.log(addProductForm)
     }
     //選擇圖片
     const selectFile = (event) => {
@@ -459,27 +409,12 @@ export default {
     }
     //刪除圖片
     const deleteimg = (index, id) => {
-      ElMessageBox.confirm('確定要刪除資料？', '警告', {
-        confirmButtonText: '確定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(async () => {
-          const data = { id: id }
-          const res = await delImg(data)
-          console.log(res)
+      deleteMessage(() => {
+        const data = { id: id }
+        callApi(delImg, data, () => {
           imgList.value.splice(index, 1)
-          ElMessage({
-            type: 'success',
-            message: '已刪除資料'
-          })
         })
-        .catch(() => {
-          ElMessage({
-            type: 'info',
-            message: '已取消刪除'
-          })
-        })
+      })
     }
     //重置搜尋列表
     const reset = () => {
@@ -487,45 +422,45 @@ export default {
       searchList.PageLimit = 20
       searchList.GoodsName = ''
       searchList.GoodsType = null
-      getProdcutList()
+      getGoodsList()
     }
 
     return {
+      dialogGoodsVisible,
+      dialogTypeVisible,
       tableDataTotal,
+      submitStatus,
       searchStatus,
-      oldSearchList,
-      searchList,
+      dialogTitle,
       addSpecsList,
       addSpecsCount,
+      oldSearchList,
+      searchList,
       tableData,
-      dialogProductVisible,
-      dialogTypeVisible,
-      addProductForm,
-      submitStatus,
-      dialogTitle,
-      deleteProduct,
-      reset,
-      getProdcutList,
-      getGoodsType,
       typeTableData,
       goodsTypeForm,
-      addGoodsType,
-      delType,
-      addProduct,
-      editProduct,
-      addSpecs,
-      handleAddGoods,
-      handleSubmit,
-      handleClose,
-      deleteSpecs,
-      selectFile,
+      addGoodsForm,
       imgList,
       imgData,
+      getGoodsList,
+      getGoodsType,
+      addGoods,
+      editGoods,
+      deleteGoods,
+      handleAddGoods,
+      addGoodsType,
+      delGoodsType,
+      addSpecs,
+      deleteSpecs,
+      handleSubmit,
+      handleClose,
+      selectFile,
       handleUpload,
       deleteimg,
       pageChange,
+      sizeChange,
       handleSearch,
-      sizeChange
+      reset
     }
   }
 }

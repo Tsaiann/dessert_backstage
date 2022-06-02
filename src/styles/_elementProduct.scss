@@ -74,12 +74,12 @@
     }
     .addSpecs{
       .el-input{
-        width: 100px;
         vertical-align: baseline;
         border-radius: 100%;
         margin: 5px;
         .el-input__inner{
-          background: 	#F0F0F0;
+          min-width: 80px;
+          background:#F0F0F0;
           border:0;
         }
         .el-input-group__append{
