@@ -28,7 +28,7 @@
                 :page-size="searchList.PageLimit"
                 layout="sizes, total, prev, pager, next"
                 :total="tableDataTotal.length"
-                :page-sizes="[10, 15, 20]"
+                :page-sizes="[10, 15, 20, 50]"
                 @size-change="sizeChange"
                 @current-change="pageChange"
                 width="900"
@@ -91,12 +91,12 @@
                     <span data-space-horizontal="1rem">種</span>
                     <el-button icon="el-icon-circle-plus-outline" size="small" round @click="addSpecs()">新增規格</el-button>
                   </div>
-                  <div class="addSpecs row horizontal wrap">
-                    <el-input v-for="(item, i) in addSpecsList.list" :key="i" size="small" v-model="item.Specs">
-                      <template #append>
-                        <el-button size="small" circle icon="el-icon-error" @click="deleteSpecs(i, item.ID)" />
-                      </template>
-                    </el-input>
+                  <div class="row horizontal wrap">
+                    <div class="specs-list" v-for="(item, i) in addSpecsList.list" :key="i">
+                      <el-button size="small" circle icon="el-icon-error" @click="deleteSpecs(i, item.ID)" />
+                      <span>{{ item.Specs }}</span>
+                      <el-input v-model="item.Specs" size="small" placeholder="商品規格" />
+                    </div>
                   </div>
                 </el-form-item>
                 <el-form-item label="金額：">
@@ -394,9 +394,11 @@ export default {
           },
           body: formData
         }
-        fetch('/api' + '/admin/image/c', options)
+        const baseUrl = process.env.NODE_ENV === 'production' ? 'https://nocodenolife.net/ann/' : '/api'
+        fetch(baseUrl + '/admin/image/c', options)
           .then((res) => res.json())
           .then((res) => {
+            console.log(res)
             imgData.img = res.Data.Url
             imgData.ID = res.Data.ID
             imgList.value.push(JSON.parse(JSON.stringify(imgData)))

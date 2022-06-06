@@ -1,27 +1,43 @@
 .product{
   @include size(100%,100%);
   @include boxSizing;
+  .upload{
+    @include flexBox(row, center, flex-start);
+    @include boxSizing;
+    margin-top: 5px;
+    .upload-customize{
+      margin-right: 5px;
+      @include flexBox(row, center, center);
+      @include size(100px,30px);
+      position: relative;
+      border: 1px solid #E0E0E0;
+      background: #E0E0E0;
+      border-radius: 5px;
+      font-family: '微軟雅黑體';
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      input[type="file"] {
+        @include size(1px,1px);
+        @include position(absolute, 0, null, null, 0);
+      }
+    }
+    .el-input{
+      width: 130px;
+      margin-right:5px;
+    }
+  }
   .upload-text{
     display: block;
     width: 322px;
     border-radius: 5px;
     overflow: auto;
   }
-  .upload{
-    @include flexBox(row, center, flex-start);
-    @include boxSizing;
-    margin-top: 5px;
-    .el-input{
-      width: 130px;
-      margin-right:5px;
-    }
-  }
   .upload-list{
     @include flexBox(row, center, space-between);
+    @include size(300px,50px);
     border: 1px solid #E0E0E0;
     margin: 5px 0;
-    width: 300px;
-    height: 50px;
     img{
       height: 50px;
     }
@@ -37,34 +53,12 @@
       }
     }
   }
-  .upload-customize{
-    margin-right: 5px;
-    @include flexBox(row, center, center);
-    position: relative;
-    width: 100px;
-    height: 30px;
-    border: 1px solid #E0E0E0;
-    background: #E0E0E0;
-    border-radius: 5px;
-    font-family: '微軟雅黑體';
-    font-weight: 500;
-    font-size: 13px;
-    cursor: pointer;
-    input[type="file"] {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 1px;
-      height: 1px;
-    }
-  }
   .el-dialog{
     .el-table{
       margin-top: 20px;
       @include el-table__border(300px);
       &::before{
-        width: 0;
-        height: 0;
+        @include size(0,0);
       }
     }
     .specs{
@@ -72,23 +66,32 @@
         width: 70px;
       }
     }
-    .addSpecs{
+    .specs-list{
+      @include flexBox(row, center, null);
+      box-sizing: border-box;
+      min-width: 100px;
+      height: 32px;
+      position: relative;
+      margin: 0 5px 5px 0;
+      .el-button{
+        cursor: pointer;
+        border: 0;
+        z-index: 1;
+        padding: 0 8px;
+        background: #F0F0F0;
+        border-radius: 5px;
+      }
+      span{
+        @include size(100%, 100%);
+        visibility: hidden;
+      }
       .el-input{
-        vertical-align: baseline;
-        border-radius: 100%;
-        margin: 5px;
+        width: 100%;
+        position: absolute;
         .el-input__inner{
-          min-width: 80px;
-          background:#F0F0F0;
-          border:0;
-        }
-        .el-input-group__append{
-          padding: 0 10px;
-          background: 	#F0F0F0;
+          background: #F0F0F0;
           border: 0;
-          .el-button .el-button--defalut{
-            width: 30px;
-          }
+          padding: 0 0 0 30px;
         }
       }
     }

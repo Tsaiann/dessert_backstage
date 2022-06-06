@@ -1,5 +1,5 @@
 <template>
-  <div class="login row vertical" data-width="20%">
+  <div class="login row vertical">
     <p>使用者帳號</p>
     <el-input v-model="loginForm.account" type="text" placeholder="請輸入帳號" data-space-bottom="0.5rem" />
     <p>密碼</p>
