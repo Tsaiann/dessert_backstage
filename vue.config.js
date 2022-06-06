@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   lintOnSave: false,
-  publicPath: process.env.NODE_ENV === 'production' ? '/dessert_backstage/' : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? 'https://nocodenolife.net/ann/' : '/api',
   pages: {
     index: {
       // entry for the page
