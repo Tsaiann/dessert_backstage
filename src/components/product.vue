@@ -394,7 +394,7 @@ export default {
           },
           body: formData
         }
-        const baseUrl = process.env.NODE_ENV === 'production' ? 'https://nocodenolife.net/ann/' : '/api'
+        const baseUrl = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_BASE_API : '/api'
         fetch(baseUrl + '/admin/image/c', options)
           .then((res) => res.json())
           .then((res) => {
