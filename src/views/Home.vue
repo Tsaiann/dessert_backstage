@@ -6,7 +6,6 @@
 </template>
 
 <script>
-
 import { ref, reactive, computed, onMounted, onBeforeMount, defineComponent } from 'vue'
 import navigator from '@/components/navigator.vue'
 
@@ -15,10 +14,8 @@ export default defineComponent({
   components: {
     navigator
   },
-  setup(){
-    return{
-
-    }
+  setup() {
+    return {}
   }
 })
 </script>

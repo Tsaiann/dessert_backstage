@@ -1,7 +1,15 @@
-.otp{
-  @include size(150px,40px);
-  background: #dcdcdc;
-  text-align: center;
-  line-height: 2;
-  font-size: 20px;
+.login{
+  @include boxSizing;
+  @include size(400px,320px);
+  @include position(absolute,50%,0,0,50%);
+  margin: -160px 0 0 -200px;
+  border: 1px solid #C9C9C9;
+  padding: 40px 50px;
+  .otp{
+    @include size(150px,40px);
+    background: #dcdcdc;
+    text-align: center;
+    line-height: 2;
+    font-size: 20px;
+  }
 }

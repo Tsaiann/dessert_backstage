@@ -1,7 +1,99 @@
 .product{
+  @include size(100%,100%);
+  @include boxSizing;
+  .upload{
+    @include flexBox(row, center, flex-start);
+    @include boxSizing;
+    margin-top: 5px;
+    .upload-customize{
+      margin-right: 5px;
+      @include flexBox(row, center, center);
+      @include size(100px,30px);
+      position: relative;
+      border: 1px solid #E0E0E0;
+      background: #E0E0E0;
+      border-radius: 5px;
+      font-family: '微軟雅黑體';
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      input[type="file"] {
+        @include size(1px,1px);
+        @include position(absolute, 0, null, null, 0);
+      }
+    }
+    .el-input{
+      width: 130px;
+      margin-right:5px;
+    }
+  }
+  .upload-text{
+    display: block;
+    width: 322px;
+    border-radius: 5px;
+    overflow: auto;
+  }
+  .upload-list{
+    @include flexBox(row, center, space-between);
+    @include size(300px,50px);
+    border: 1px solid #E0E0E0;
+    margin: 5px 0;
+    img{
+      height: 50px;
+    }
+    p{
+      width: 200px;
+      overflow: auto;
+    }
+    .el-button--small.is-circle{
+      padding: 5px;
+      border: 0;
+      &:hover{
+        background: #fff;
+      }
+    }
+  }
   .el-dialog{
     .el-table{
+      margin-top: 20px;
       @include el-table__border(300px);
+      &::before{
+        @include size(0,0);
+      }
+    }
+    .specs{
+      .el-input{
+        width: 70px;
+      }
+    }
+    .specs-list{
+      @include flexBox(row, center, null);
+      box-sizing: border-box;
+      min-width: 100px;
+      height: 32px;
+      position: relative;
+      margin: 0 5px 5px 0;
+      .el-button{
+        cursor: pointer;
+        border: 0;
+        z-index: 1;
+        padding: 0 8px;
+        background: #F0F0F0;
+        border-radius: 5px;
+      }
+      span{
+        @include size(100%, 100%);
+        visibility: hidden;
+      }
+      .el-input{
+        width: 100%;
+        position: absolute;
+        .el-input__inner{
+          background: #F0F0F0;
+          border: 0;
+          padding: 0 0 0 30px;
+        }
+      }
     }
   }
 }
