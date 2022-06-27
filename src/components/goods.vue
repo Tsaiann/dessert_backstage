@@ -36,7 +36,7 @@
             </div>
           </div>
           <div class="row horizontal h_end" data-width="15%">
-            <el-button type="primary" plain size="small" @click="dialogTypeVisible = true">分類管理</el-button>
+            <el-button type="primary" plain size="small" @click="dialogTypeVisible = true" v-if="permissionsUse.type_edit">分類管理</el-button>
             <el-dialog v-model="dialogTypeVisible" title="分類管理" width="500px">
               <hr />
               <el-form :model="goodsTypeForm" data-space-top="1rem">
@@ -63,7 +63,7 @@
                 </span>
               </template>
             </el-dialog>
-            <el-button type="primary" data-space-left="0.5rem" size="small" @click="addGoods()">新增商品 ＋</el-button>
+            <el-button type="primary" data-space-left="0.5rem" size="small" @click="addGoods()" v-if="permissionsUse.goods_add">新增商品 ＋</el-button>
             <el-dialog v-model="dialogGoodsVisible" :title="dialogTitle" width="500px" @close="handleClose">
               <hr />
               <el-form :model="addGoodsForm">
@@ -145,8 +145,8 @@
             <el-table-column label="操作" width="270" align="center">
               <template #default="scope">
                 <div class="row horizontal center">
-                  <el-button type="warning" plain size="small" @click="editGoods(scope.row)">查看/修改</el-button>
-                  <el-button type="danger" plain size="small" @click="deleteGoods(scope.row.ID)">刪除</el-button>
+                  <el-button type="warning" plain size="small" @click="editGoods(scope.row)" v-if="permissionsUse.goods_edit">查看/修改</el-button>
+                  <el-button type="danger" plain size="small" @click="deleteGoods(scope.row.ID)" v-if="permissionsUse.goods_delete">刪除</el-button>
                 </div>
               </template>
             </el-table-column>
@@ -160,12 +160,12 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage } from 'element-plus'
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { callApi, deleteMessage } from '@/utils/callApi'
 import { addGoodsList, productList, goodsTypeList, addGoodType, delGoodType, delProduct, updateProduct, delSpecs, delImg } from '@/service/api'
 
 export default {
-  name: 'Product',
+  name: 'Goods',
   components: {
     guideLine
   },
@@ -418,6 +418,16 @@ export default {
         })
       })
     }
+    // 權限表更新
+    const permissionsUse = computed(() => {
+      const permissions = JSON.parse(localStorage.getItem('userPermissions'))
+      return {
+        goods_add: permissions.goods_manage_add.Activity,
+        goods_edit: permissions.goods_manage_edit_goods.Activity,
+        goods_delete: permissions.goods_manage_del.Activity,
+        type_edit: permissions.goods_manage_edit_type.Activity
+      }
+    })
     //重置搜尋列表
     const reset = () => {
       searchList.Page = 1
@@ -446,6 +456,7 @@ export default {
       imgData,
       getGoodsList,
       getGoodsType,
+      permissionsUse,
       addGoods,
       editGoods,
       deleteGoods,

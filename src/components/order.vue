@@ -48,7 +48,7 @@
             <el-table-column id="operate" label="操作" min-width="200" align="center">
               <template #default>
                 <div class="row horizontal center">
-                  <el-button type="warning" plain size="small" @click="dialogVisible = true">查看/修改</el-button>
+                  <el-button v-if="permissionsUse.edit" type="warning" plain size="small" @click="dialogVisible = true">查看/修改</el-button>
                   <el-dialog v-model="dialogVisible" title="查看/修改訂單" width="500px">
                     <hr />
                     <el-form :model="orderForm">
@@ -104,7 +104,7 @@
                       </span>
                     </template>
                   </el-dialog>
-                  <el-button type="danger" plain size="small" @click="deleteOrder" data-space-left="0.5rem">刪除</el-button>
+                  <el-button v-if="permissionsUse.delete" type="danger" plain size="small" @click="deleteOrder" data-space-left="0.5rem">刪除</el-button>
                 </div>
               </template>
             </el-table-column>
@@ -118,7 +118,7 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
@@ -237,6 +237,14 @@ export default {
           })
         })
     }
+    // 權限表更新
+    const permissionsUse = computed(() => {
+      const permissions = JSON.parse(localStorage.getItem('userPermissions'))
+      return {
+        edit: permissions.order_manage_edit.Activity,
+        delete: permissions.order_manage_del.Activity
+      }
+    })
     const reset = () => {
       timeValue.value = ''
       deliver.value = '全部'
@@ -253,6 +261,7 @@ export default {
       tableData,
       dialogVisible,
       orderForm,
+      permissionsUse,
       deleteOrder,
       reset
     }

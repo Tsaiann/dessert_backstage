@@ -11,17 +11,18 @@
     </div>
     <div class="row horizontal center">
       <el-button type="primary" @click="hanleLogin()">登入</el-button>
-      <el-button @click="removeLogin()">清除</el-button>
+      <el-button @click="removeLogin">清除</el-button>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getOtp, login } from '@/service/api'
+import { getOtp, login, getAdminPermissions } from '@/service/api'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
+import { callApi } from '../utils/callApi'
 
 export default {
   name: 'Login',
@@ -34,23 +35,50 @@ export default {
       password: '',
       otp: ''
     })
+    //取得otp
     const callOtp = onMounted(async () => {
       const data = ''
       const res = await getOtp(data)
       if (res.data.Code === 200) {
         otp.OTP = res.data.Data.OTP
       } else {
-        alert('Get OTP ERROR!!')
+        ElMessage({
+          message: 'OTP API ERROR!!',
+          type: 'error'
+        })
       }
     })
+
+    // 取得當前管理員的權限列表並更新store裡的資訊
+    const getPermission = async () => {
+      const id = store.state.userModules.userStatus.id
+      const data = { MemberID: id }
+      await callApi(getAdminPermissions, data, (res) => {
+        store.commit('userModules/SET_USERPERMISSIONS', res.data.Data.Permission)
+      })
+    }
+
+    //先取得權限表後才轉換路由
+    const hanleRouterChange = async () => {
+      await getPermission()
+      await router.push({ name: 'Home' })
+    }
+
     const hanleLogin = async () => {
       if (loginForm.account !== '' && loginForm.password !== '' && loginForm.otp !== '') {
-        const res = await login(loginForm)
-        if (res.data.Code === 200) {
-          store.commit('userModules/SET_TOKEN', res.data.Data.Token)
-          router.push({ name: 'Home' })
-        }
-      } else if (loginForm.account == '' || loginForm.password == '' || loginForm.otp == '') {
+        await callApi(login, loginForm, async (res) => {
+          store.commit('userModules/SET_USERSTATUS', res.data.Data)
+          await hanleRouterChange()
+        }).catch(() => {
+          ElMessage({
+            showClose: true,
+            message: '輸入有誤！',
+            type: 'error'
+          })
+          removeLogin()
+          callOtp()
+        })
+      } else {
         ElMessage({
           showClose: true,
           message: '欄位不能為空，請重新輸入！',

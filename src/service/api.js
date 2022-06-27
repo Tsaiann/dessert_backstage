@@ -2,7 +2,7 @@ import { request } from '@/service/request'
 
 // 取得token
 export const getToken = () => {
-  return localStorage.getItem('token')
+  return JSON.parse(localStorage.getItem('userInfo')).token
 }
 
 // 獲得登入OTP碼
@@ -139,4 +139,65 @@ export const delImg = (data) =>
       'Content-Type': 'application/json'
     },
     data: data
+  })
+
+// 取得管理權限表
+export const getAdminPermissions = (data) =>
+  request({
+    url: '/admin/permission/r',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+// 更新管理權限表
+export const updateAdminPermissions = (data) =>
+  request({
+    url: '/admin/permission/u',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+//取得所有管理者列表
+export const getAdminMembers = (data) =>
+  request({
+    url: '/admin/member/backstage/r',
+    method: 'get',
+    headers: { 'Content-Type': 'text/plain' },
+    data: data
+  })
+//新增管理員
+export const addAdminMembers = (data) =>
+  request({
+    url: '/admin/member/backstage/c',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    data: data
+  })
+//更新管理員資訊
+export const updateAdminMembers = (data) =>
+  request({
+    url: '/admin/member/backstage/u',
+    method: 'post',
+    headers: { 'Content-Type': 'text/plain' },
+    data: data
+  })
+//刪除管理員
+export const removeAdminMembers = (params) =>
+  request({
+    url: '/admin/member/backstage/d',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    params
   })

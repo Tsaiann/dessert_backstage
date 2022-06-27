@@ -50,13 +50,8 @@ export const request = (config) => {
       }
     },
     (error) => {
-      if (error.response.status !== 200) {
-        ElMessage({
-          showClose: true,
-          message: '輸入有誤，請重新輸入！',
-          type: 'error'
-        })
-      }
+      console.log('error', error)
+      return Promise.reject(error)
     }
   )
   return service(config)

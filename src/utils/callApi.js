@@ -10,6 +10,7 @@ export const callApi = async (api, data, cb = () => void 0) => {
       type: 'error',
       message: 'API ERROR!'
     })
+    cb(res)
   }
 }
 

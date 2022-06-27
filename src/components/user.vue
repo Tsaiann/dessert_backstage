@@ -39,7 +39,7 @@
             <el-table-column label="操作" width="200" align="center">
               <template #default>
                 <div class="row horizontal center">
-                  <el-button type="warning" plain size="small" @click="dialogUserVisible = true">查看</el-button>
+                  <el-button v-if="permissionsUse.detail" type="warning" plain size="small" @click="dialogUserVisible = true">查看</el-button>
                   <el-dialog v-model="dialogUserVisible" title="查看會員" width="500px">
                     <hr />
                     <el-form :model="UserForm">
@@ -69,7 +69,7 @@
                       </span>
                     </template>
                   </el-dialog>
-                  <el-button type="danger" plain size="small" @click="deleteUser" data-space-left="0.5rem">刪除</el-button>
+                  <el-button v-if="permissionsUse.delete" type="danger" plain size="small" @click="deleteUser" data-space-left="0.5rem">刪除</el-button>
                 </div>
               </template>
             </el-table-column>
@@ -83,7 +83,7 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 
 export default {
   name: 'User',
@@ -178,6 +178,14 @@ export default {
           })
         })
     }
+    // 權限表更新
+    const permissionsUse = computed(() => {
+      const permissions = JSON.parse(localStorage.getItem('userPermissions'))
+      return {
+        detail: permissions.member_manage_detail.Activity,
+        delete: permissions.member_manage_del.Activity
+      }
+    })
     const reset = () => {
       accountInput.value = ''
       nameInput.value = ''
@@ -195,7 +203,8 @@ export default {
       userTableData,
       reset,
       accountInput,
-      nameInput
+      nameInput,
+      permissionsUse
     }
   }
 }
