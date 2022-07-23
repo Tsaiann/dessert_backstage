@@ -180,7 +180,7 @@ export default {
           type: 'success',
           message: '成功新增管理員!'
         })
-        dialogAddMember.value = false
+        dialogAddVisible.value = false
       })
     }
     // 製作權限設定表方便放入彈窗裡
