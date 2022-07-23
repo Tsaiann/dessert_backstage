@@ -44,8 +44,7 @@ export default {
     }
     return {
       pageName,
-      logout,
-      test
+      logout
     }
   }
 }
