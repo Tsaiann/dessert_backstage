@@ -17,7 +17,7 @@ export default {
     const unloadHandler = () => {
       gapTime.value = new Date().getTime() - beforeUnloadTime.value
       // 判斷是關閉還是刷新
-      if (gapTime.value <= 5) {
+      if (gapTime.value <= 10) {
         localStorage.clear()
       }
     }
