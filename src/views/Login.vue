@@ -65,7 +65,7 @@ export default {
     }
 
     const hanleLogin = async () => {
-      if (loginForm.account !== '' && loginForm.password !== '' && loginForm.otp !== '') {
+      if (loginForm.account !== '' && loginForm.password !== '' && loginForm.otp !== '' && loginForm.otp === otp.OTP) {
         await callApi(login, loginForm, async (res) => {
           store.commit('userModules/SET_USERSTATUS', res.data.Data)
           await hanleRouterChange()

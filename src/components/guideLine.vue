@@ -21,9 +21,6 @@ export default {
     const pageName = props.msg
     const store = useStore()
     const router = useRouter()
-    const test = () => {
-      console.log(userStore)
-    }
     const logout = () => {
       ElMessageBox.confirm('確定要登出嗎？', '提示訊息', {
         confirmButtonText: '確定',
