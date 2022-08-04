@@ -5,12 +5,6 @@ export const callApi = async (api, data, cb = () => void 0) => {
   if (res.data.Code === 200) {
     console.log('api:', res)
     cb(res)
-  } else {
-    ElMessage({
-      type: 'error',
-      message: 'API ERROR!'
-    })
-    cb(res)
   }
 }
 

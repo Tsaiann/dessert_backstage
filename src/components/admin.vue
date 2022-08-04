@@ -153,7 +153,8 @@ export default {
         callback(new Error('此處不可為空'))
       } else if (value !== state.adminForm.pwd) {
         callback(new Error('密碼不一致，請再次輸入密碼'))
-      } else {
+      } else if (value === state.adminForm.pwd) {
+        adminAddForm.value.validateField('confirmPwd', () => null)
         callback()
       }
     }

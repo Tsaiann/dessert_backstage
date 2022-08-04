@@ -201,3 +201,14 @@ export const removeAdminMembers = (params) =>
     },
     params
   })
+//刪除管理員
+export const getImg = (data) =>
+  request({
+    url: '/admin/image/r',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })

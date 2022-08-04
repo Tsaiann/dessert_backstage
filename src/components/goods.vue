@@ -37,7 +37,7 @@
           </div>
           <div class="row horizontal h_end" data-width="15%">
             <el-button type="primary" plain size="small" @click="dialogTypeVisible = true" v-if="permissionsUse.type_edit">分類管理</el-button>
-            <el-dialog v-model="dialogTypeVisible" title="分類管理" width="500px">
+            <el-dialog v-model="dialogTypeVisible" title="分類管理" width="500px" @close="closeGoodType">
               <hr />
               <el-form :model="goodsTypeForm" data-space-top="1rem">
                 <el-form-item label="新增分類：">
@@ -47,10 +47,14 @@
                 <el-table :data="typeTableData">
                   <el-table-column prop="ID" label="id" width="80" />
                   <el-table-column prop="Name" label="分類名稱" width="130" />
-                  <el-table-column prop="anotherName" label="別名" width="130" />
+                  <el-table-column prop="Alias" label="別名" width="130">
+                    <template #default="scope">
+                      <el-input size="small" data-width="60%" v-model="scope.row.Alias" v-if="scope.row.ID !== 1" />
+                    </template>
+                  </el-table-column>
                   <el-table-column label="操作" align="center">
                     <template #default="scope">
-                      <el-button type="danger" plain size="small" @click="delGoodsType(scope.row.ID)">刪除</el-button>
+                      <el-button type="danger" plain size="small" @click="delGoodsType(scope.row.ID)" v-if="scope.row.ID !== 1">刪除</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -58,19 +62,19 @@
               <hr />
               <template #footer>
                 <span class="dialog-footer">
-                  <el-button @click="dialogTypeVisible = false">取消</el-button>
-                  <el-button type="primary" @click="dialogTypeVisible = false">確定</el-button>
+                  <el-button @click="closeGoodType">取消</el-button>
+                  <el-button type="primary" @click="updateGoodsTypeAlias()">確定</el-button>
                 </span>
               </template>
             </el-dialog>
             <el-button type="primary" data-space-left="0.5rem" size="small" @click="addGoods()" v-if="permissionsUse.goods_add">新增商品 ＋</el-button>
-            <el-dialog v-model="dialogGoodsVisible" :title="dialogTitle" width="500px" @close="handleClose">
+            <el-dialog v-model="dialogGoodsVisible" :title="dialogTitle" width="500px" @close="handleCloseGoods">
               <hr />
               <el-form :model="addGoodsForm">
                 <el-form-item label="前台顯示：">
-                  <el-radio-group v-model="addGoodsForm.Show">
-                    <el-radio :label="true">是</el-radio>
-                    <el-radio :label="false">否</el-radio>
+                  <el-radio-group v-model="addGoodsForm.display">
+                    <el-radio label="是">是</el-radio>
+                    <el-radio label="否">否</el-radio>
                   </el-radio-group>
                 </el-form-item>
                 <el-form-item label="新品期間：">
@@ -140,13 +144,17 @@
             <el-table-column prop="ID" label="id" min-width="80" />
             <el-table-column prop="Name" label="商品名稱" min-width="250" />
             <el-table-column prop="GoodsType.Name" label="商品分類" min-width="150" />
-            <el-table-column prop="img" label="商品圖片" min-width="250" />
-            <el-table-column prop="Show" label="前台顯示" min-width="100" />
+            <el-table-column prop="ImagesIdnet" label="商品圖片" min-width="250" align="center">
+              <template #default="scope">
+                <img :src="scope.row.ImageUrls[0].Url" alt="a" width="100" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="Show" label="前台顯示" min-width="100" align="center" />
             <el-table-column label="操作" width="270" align="center">
               <template #default="scope">
                 <div class="row horizontal center">
                   <el-button type="warning" plain size="small" @click="editGoods(scope.row)" v-if="permissionsUse.goods_edit">查看/修改</el-button>
-                  <el-button type="danger" plain size="small" @click="deleteGoods(scope.row.ID)" v-if="permissionsUse.goods_delete">刪除</el-button>
+                  <el-button type="danger" plain size="small" @click="deleteGoods(scope.row)" v-if="permissionsUse.goods_delete">刪除</el-button>
                 </div>
               </template>
             </el-table-column>
@@ -160,9 +168,22 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage } from 'element-plus'
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, toRef } from 'vue'
 import { callApi, deleteMessage } from '@/utils/callApi'
-import { addGoodsList, productList, goodsTypeList, addGoodType, delGoodType, delProduct, updateProduct, delSpecs, delImg } from '@/service/api'
+import {
+  addGoodsList,
+  productList,
+  goodsTypeList,
+  addGoodType,
+  delGoodType,
+  delProduct,
+  updateProduct,
+  delSpecs,
+  delImg,
+  updateGoodsType,
+  getImg
+} from '@/service/api'
+import { resetForm } from '@/utils/resetForm'
 
 export default {
   name: 'Goods',
@@ -186,6 +207,7 @@ export default {
     let dialogTypeVisible = ref(false)
     let tableData = ref([])
     let typeTableData = ref([])
+    let updateAlias = reactive({ List: [] })
     let addSpecsList = reactive({ list: [] })
     let addSpecsCount = reactive([{ Specs: '' }])
     let imgList = ref([])
@@ -193,13 +215,14 @@ export default {
       ID: '',
       img: '',
       ident: '',
-      file: null,
+      file: '',
       fileName: ''
     })
 
     const addGoodsForm = reactive({
       Name: '',
       Show: null,
+      display: null,
       GoodsTypeID: '',
       GoodsSpecs: [],
       UnitPrice: '',
@@ -207,11 +230,18 @@ export default {
       Description: ''
     })
     //獲得所有商品資料
-    const getGoodsList = onMounted(() => {
+    const getGoodsList = onMounted(async () => {
       const data = {}
       callApi(productList, data, (res) => {
         tableData.value = [...res.data.Data]
         tableDataTotal.value = tableData.value
+        tableData.value.forEach((el) => {
+          if (el.Show === true) {
+            el.Show = '是'
+          } else {
+            el.Show = '否'
+          }
+        })
       })
     })
     //獲得所有商品種類資料
@@ -238,6 +268,25 @@ export default {
         })
       })
     }
+    //更新商品種類別名
+    const updateGoodsTypeAlias = () => {
+      updateAlias.List = typeTableData.value.slice(1)
+      const data = updateAlias
+      console.log(data)
+      callApi(updateGoodsType, data, () => {
+        getGoodsType()
+        dialogTypeVisible.value = false
+      })
+    }
+    //關閉商品類別彈窗
+    const closeGoodType = () => {
+      updateAlias.List = typeTableData.value.slice(1)
+      updateAlias.List.forEach((el) => {
+        el.Alias = ''
+      })
+      dialogTypeVisible.value = false
+      getGoodsType()
+    }
     //打開新增商品內容欄位
     const addGoods = () => {
       dialogGoodsVisible.value = true
@@ -248,20 +297,41 @@ export default {
     const handleAddGoods = () => {
       addGoodsForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
       addGoodsForm.UnitPrice = parseInt(addGoodsForm.UnitPrice)
+      if (addGoodsForm.display === '是') {
+        addGoodsForm.Show = true
+      } else {
+        addGoodsForm.Show = false
+      }
       const data = addGoodsForm
       callApi(addGoodsList, data, () => {
         getGoodsList()
         dialogGoodsVisible.value = false
+      }).catch(() => {
+        ElMessage({
+          type: 'error',
+          message: '請確實填寫商品資料'
+        })
       })
     }
     //刪除商品內容
-    const deleteGoods = (id) => {
+    const deleteGoods = (obj) => {
       deleteMessage(() => {
-        const data = { ID: id }
+        const data = { ID: obj.ID }
         callApi(delProduct, data, () => {
           getGoodsList()
+          autoDeleteImg(obj.ImageUrls)
         })
       })
+    }
+    // 刪除商品時一併刪除照片
+    const autoDeleteImg = (arr) => {
+      const imgIDList = arr.map((el) => Object.values(el)[0])
+      for (let i in imgIDList) {
+        const data = { id: imgIDList[i] }
+        callApi(delImg, data, () => {
+          imgList.value = []
+        })
+      }
     }
     //增加商品規格清單
     const addSpecs = () => {
@@ -286,20 +356,36 @@ export default {
       submitStatus.value = 'edit'
       dialogTitle.value = '修改商品'
       addGoodsForm.Name = obj.Name
-      addGoodsForm.Show = obj.Show
+      addGoodsForm.display = obj.Show
       addGoodsForm.GoodsTypeID = obj.GoodsTypeID
       addGoodsForm.UnitPrice = obj.UnitPrice
       addGoodsForm.Description = obj.Description
       addGoodsForm.ID = obj.ID
-      addGoodsForm.ImagesIdnet = obj.ImagesIdnet
+      imgData.ident = obj.ImagesIdnet
+      const imgArr = obj.ImageUrls
+      for (let i in imgArr) {
+        imgData.img = imgArr[i].Url
+        imgData.fileName = imgArr[i].Url
+        imgData.ID = imgArr[i].ID
+        imgList.value.push(JSON.parse(JSON.stringify(imgData)))
+        imgData.img = ''
+        imgData.fileName = ''
+      }
       addSpecsCount[0].Specs = obj.GoodsSpecs[0].Specs
       addSpecsCount[0].ID = obj.GoodsSpecs[0].ID
       addSpecsList.list = obj.GoodsSpecs.slice(1)
     }
+
     //編輯商品資料
     const handleEditGoods = () => {
+      addGoodsForm.ImagesIdnet = imgData.ident
       addGoodsForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
       addGoodsForm.UnitPrice = parseInt(addGoodsForm.UnitPrice)
+      if (addGoodsForm.display === '是') {
+        addGoodsForm.Show = true
+      } else {
+        addGoodsForm.Show = false
+      }
       const data = addGoodsForm
       callApi(updateProduct, data, () => {
         getGoodsList()
@@ -331,32 +417,49 @@ export default {
         oldSearchList = searchList
         const data = oldSearchList
         const res = await productList(data)
-        console.log(res)
         tableData.value = [...res.data.Data]
+        tableData.value.forEach((el) => {
+          if (el.Show === true) {
+            el.Show = '是'
+          } else {
+            el.Show = '否'
+          }
+        })
         searchList.Page += 1
         searchStatus.value = ''
       } else {
         searchList.Page -= 1
         const data = searchList
         const res = await productList(data)
-        console.log(res)
         if (res.data.Code === 200) {
           tableData.value = [...res.data.Data]
+          tableData.value.forEach((el) => {
+            if (el.Show === true) {
+              el.Show = '是'
+            } else {
+              el.Show = '否'
+            }
+          })
           tableDataTotal.value = tableData.value
           searchList.Page += 1
         }
       }
     }
 
-    const handleClose = () => {
+    const handleCloseGoods = () => {
       Object.keys(addGoodsForm).forEach((item) => {
         addGoodsForm[item] = ''
       })
+      Object.keys(imgData).forEach((item) => {
+        imgData[item] = ''
+      })
       addGoodsForm.GoodsSpecs = []
+      imgList.value = []
       addSpecsList.list = []
       addSpecsCount[0].Specs = ''
       delete addGoodsForm.ID
       delete addSpecsCount[0].ID
+      getGoodsList()
     }
     //選擇圖片
     const selectFile = (event) => {
@@ -372,6 +475,8 @@ export default {
           type: 'error'
         })
         return
+      } else {
+        console.log(imgData)
       }
     }
     //上傳圖片
@@ -381,7 +486,11 @@ export default {
           message: '圖片別名不可為空',
           type: 'error'
         })
-        return
+      } else if (imgData.file === '') {
+        ElMessage({
+          message: '請選擇圖片',
+          type: 'error'
+        })
       } else {
         const token = localStorage.getItem('token')
         const formData = new FormData()
@@ -401,11 +510,10 @@ export default {
             console.log(res)
             imgData.img = res.Data.Url
             imgData.ID = res.Data.ID
+            addGoodsForm.ImagesIdnet = imgData.ident
             imgList.value.push(JSON.parse(JSON.stringify(imgData)))
-            Object.keys(imgData).forEach((item) => {
-              imgData[item] = ''
-            })
-            imgData.file = null
+            resetForm(imgData)
+            imgData.ident = addGoodsForm.ImagesIdnet
           })
       }
     }
@@ -436,7 +544,6 @@ export default {
       searchList.GoodsType = null
       getGoodsList()
     }
-
     return {
       dialogGoodsVisible,
       dialogTypeVisible,
@@ -457,6 +564,7 @@ export default {
       getGoodsList,
       getGoodsType,
       permissionsUse,
+      updateAlias,
       addGoods,
       editGoods,
       deleteGoods,
@@ -466,13 +574,15 @@ export default {
       addSpecs,
       deleteSpecs,
       handleSubmit,
-      handleClose,
+      handleCloseGoods,
       selectFile,
       handleUpload,
       deleteimg,
       pageChange,
       sizeChange,
       handleSearch,
+      updateGoodsTypeAlias,
+      closeGoodType,
       reset
     }
   }
