@@ -24,4 +24,16 @@
       }
     }
   }
+  .el-dialog__header{
+    position: relative;
+    &::after{
+      content: '';
+      width: 92%;
+      height: 1px;
+      background: $darkGray;
+      position: absolute;
+      bottom: -5px;
+      right: 20px;
+    }
+  }
 }

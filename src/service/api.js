@@ -201,10 +201,70 @@ export const removeAdminMembers = (params) =>
     },
     params
   })
-//刪除管理員
+//取得照片
 export const getImg = (data) =>
   request({
     url: '/admin/image/r',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+//取得前台會員資料
+export const memberData = (data) =>
+  request({
+    url: '/admin/member/customer/r',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    data: data
+  })
+
+//刪除前台會員資料
+export const deleteMemberData = (data) =>
+  request({
+    url: '/admin/member/customer/d',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    data: data
+  })
+
+//取得前台會員詳細資料
+export const memberDetailData = (data) =>
+  request({
+    url: '/admin/member/customer/detail',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    data: data
+  })
+
+//取得訂單資料
+export const allOrderList = (data) =>
+  request({
+    url: '/admin/order/r',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+//刪除訂單
+export const deleteOrderData = (data) =>
+  request({
+    url: '/admin/order/d',
     method: 'post',
     headers: {
       token: getToken(),

@@ -38,7 +38,6 @@
           <div class="row horizontal h_end" data-width="15%">
             <el-button type="primary" plain size="small" @click="dialogTypeVisible = true" v-if="permissionsUse.type_edit">分類管理</el-button>
             <el-dialog v-model="dialogTypeVisible" title="分類管理" width="500px" @close="closeGoodType">
-              <hr />
               <el-form :model="goodsTypeForm" data-space-top="1rem">
                 <el-form-item label="新增分類：">
                   <el-input size="small" placeholder="請輸入新增分類" v-model="goodsTypeForm.name" />
@@ -59,7 +58,6 @@
                   </el-table-column>
                 </el-table>
               </el-form>
-              <hr />
               <template #footer>
                 <span class="dialog-footer">
                   <el-button @click="closeGoodType">取消</el-button>
@@ -103,6 +101,9 @@
                     </div>
                   </div>
                 </el-form-item>
+                <el-form-item label="規格數量：">
+                  <el-input v-model="addGoodsForm.SpecsAllowance" autocomplete="off" size="small" />
+                </el-form-item>
                 <el-form-item label="金額：">
                   <el-input v-model="addGoodsForm.UnitPrice" autocomplete="off" size="small" />
                 </el-form-item>
@@ -129,7 +130,6 @@
                   <el-input v-model="addGoodsForm.Description" type="textarea" placeholder="請輸入內容" />
                 </el-form-item>
               </el-form>
-              <hr />
               <template #footer>
                 <span class="dialog-footer">
                   <el-button @click="dialogGoodsVisible = false">取消</el-button>
@@ -168,7 +168,7 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage } from 'element-plus'
-import { ref, reactive, onMounted, computed, toRef } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { callApi, deleteMessage } from '@/utils/callApi'
 import {
   addGoodsList,
@@ -181,7 +181,7 @@ import {
   delSpecs,
   delImg,
   updateGoodsType,
-  getImg
+  dddddd
 } from '@/service/api'
 import { resetForm } from '@/utils/resetForm'
 
@@ -227,7 +227,8 @@ export default {
       GoodsSpecs: [],
       UnitPrice: '',
       ImagesIdnet: '',
-      Description: ''
+      Description: '',
+      SpecsAllowance: 0
     })
     //獲得所有商品資料
     const getGoodsList = onMounted(async () => {
@@ -360,6 +361,7 @@ export default {
       addGoodsForm.GoodsTypeID = obj.GoodsTypeID
       addGoodsForm.UnitPrice = obj.UnitPrice
       addGoodsForm.Description = obj.Description
+      addGoodsForm.SpecsAllowance = obj.SpecsAllowance
       addGoodsForm.ID = obj.ID
       imgData.ident = obj.ImagesIdnet
       const imgArr = obj.ImageUrls
