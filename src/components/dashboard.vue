@@ -33,7 +33,10 @@
 
 <script>
 import guideLine from '@/components/guideLine.vue'
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { callApi } from '@/utils/callApi'
+import { productList } from '@/service/api'
+import { useStore } from 'vuex'
 
 export default {
   name: 'Dashboard',
@@ -42,6 +45,7 @@ export default {
   },
   setup() {
     const value = ref('')
+    const store = useStore()
     const cakeItem = reactive([
       {
         name: '戚風蛋糕',
@@ -60,9 +64,16 @@ export default {
         count: 4
       }
     ])
+    const getGoodsList = onMounted(async () => {
+      const data = {}
+      await callApi(productList, data, (res) => {
+        store.commit('goodsModules/SET_GOODSTATUS', res.data.Data)
+      })
+    })
     return {
       value,
-      cakeItem
+      cakeItem,
+      getGoodsList
     }
   }
 }

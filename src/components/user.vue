@@ -144,8 +144,19 @@ export default {
       callApi(memberDetailData, data, (res) => {
         state.memberDetailList = res.data.Data
         state.memberfoversList = []
-        for (let i = 0; i < state.memberDetailList.Fovers.length; i++) {
-          state.memberfoversList.push(state.memberDetailList.Fovers[i].Goods)
+        const goodsList = [...JSON.parse(localStorage.getItem('goodsInfo'))]
+        console.log(goodsList)
+        console.log(state.memberDetailList.Fovers)
+        for (let j = 0; j < goodsList.length; j++) {
+          for (let i = 0; i < state.memberDetailList.Fovers.length; i++) {
+            if (state.memberDetailList.Fovers[i].GoodsID == goodsList[j].ID) {
+              state.memberDetailList.Fovers[i].Goods.ID = goodsList[j].ID
+              state.memberDetailList.Fovers[i].Goods.Name = goodsList[j].Name
+              state.memberDetailList.Fovers[i].Goods.GoodsType.Name = goodsList[j].GoodsType.Name
+              state.memberfoversList.push(state.memberDetailList.Fovers[i].Goods)
+              console.log(state.memberfoversList)
+            }
+          }
         }
         const consumption = state.memberDetailList.Benefits.Consumption
         if (consumption < 5000) {

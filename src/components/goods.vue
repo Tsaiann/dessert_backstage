@@ -298,6 +298,7 @@ export default {
     const handleAddGoods = () => {
       addGoodsForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
       addGoodsForm.UnitPrice = parseInt(addGoodsForm.UnitPrice)
+      addGoodsForm.SpecsAllowance = addGoodsForm.SpecsAllowance * 1
       if (addGoodsForm.display === '是') {
         addGoodsForm.Show = true
       } else {
@@ -383,6 +384,7 @@ export default {
       addGoodsForm.ImagesIdnet = imgData.ident
       addGoodsForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
       addGoodsForm.UnitPrice = parseInt(addGoodsForm.UnitPrice)
+      addGoodsForm.SpecsAllowance = addGoodsForm.SpecsAllowance * 1
       if (addGoodsForm.display === '是') {
         addGoodsForm.Show = true
       } else {

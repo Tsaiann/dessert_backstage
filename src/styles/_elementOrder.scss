@@ -2,15 +2,30 @@
   .el-date-editor--daterange.el-input__inner{
     width: 300px;
   }
-  .el-select--small{
-    width: 170px;
+  .common_state{
+    .el-select--small{
+      width: 120px;
+    }
   }
   .el-dialog{
+    .order_spces{
+      .el-form-item{
+        label{
+          color: rgb(172, 168, 168);
+        }
+      }
+    }
     .el-form-item{
       &__content{
         @include flexBox(row,center,flex-start);
         .el-select{
           margin-right: 5px;
+        }
+      }
+      &.exception{
+        height: 30px;
+        .el-form-item__label{
+          width: 76px;
         }
       }
     }

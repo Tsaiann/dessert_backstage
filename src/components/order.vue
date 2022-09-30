@@ -14,7 +14,7 @@
             size="small"
           ></el-date-picker>
           <span data-space-left="1rem">訂單狀態：</span>
-          <el-select v-model="order" placeholder="Select" size="small">
+          <el-select v-model="order" placeholder="Select" size="small" @change="test">
             <el-option v-for="item in orderList" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
           <span data-space-left="1rem">出貨狀態：</span>
@@ -35,7 +35,7 @@
               :currentPage="state.currentPage"
               :page-size="state.currentPageLimit"
               layout="sizes, total, prev, pager, next"
-              :total="state.orderTableData.length"
+              :total="state.orderTableLength"
               :page-sizes="[10, 15, 20, 50]"
               @size-change="sizeChange"
               @current-change="pageChange"
@@ -44,19 +44,17 @@
           </div>
         </div>
         <div class="table_data">
-          <el-table :data="state.orderTableData">
+          <el-table :data="state.currentOrderList">
             <el-table-column prop="ID" label="id" min-width="100" />
-            <el-table-column prop="name" label="商品名稱" min-width="180" />
-            <el-table-column :prop="state.orderTableData.Items" label="數量" min-width="70" />
             <el-table-column prop="Email" label="會員" min-width="250" />
-            <el-table-column prop="price" label="金額" min-width="100" />
+            <el-table-column prop="total" label="總金額" min-width="100" />
             <el-table-column prop="OrderStage" label="訂單狀態" min-width="100" />
             <el-table-column prop="DeliveryStage" label="出貨狀態" min-width="100" />
             <el-table-column prop="CheckoutAt" label="訂單日期" min-width="130" />
             <el-table-column id="operate" label="操作" min-width="200" align="center">
               <template #default="scope">
                 <div class="row horizontal center">
-                  <el-button v-if="permissionsUse.edit" type="warning" plain size="small" @click="dialogVisible = true">查看/修改</el-button>
+                  <el-button v-if="permissionsUse.edit" type="warning" plain size="small" @click="editOrder(scope.row)">查看/修改</el-button>
                   <el-button v-if="permissionsUse.delete" type="danger" plain size="small" @click="deleteOrder(scope.row.ID)" data-space-left="0.5rem"
                     >刪除
                   </el-button>
@@ -67,7 +65,7 @@
         </div>
       </div>
     </div>
-    <el-dialog v-model="dialogVisible" title="查看/修改訂單" width="500px">
+    <el-dialog v-model="dialogVisible" title="查看/修改訂單" width="500px" v-if="dialogVisible">
       <el-form v-model="state.orderForm">
         <el-form-item label="訂單日期：">
           <p>{{ state.orderForm.date }}</p>
@@ -78,21 +76,26 @@
         <el-form-item label="優惠券：">
           <p>{{ state.orderForm.discount }}</p>
         </el-form-item>
-        <el-form-item label="商品名稱：">
-          <el-select v-model="state.orderForm.type" placeholder="請選擇" size="small">
-            <el-option label="馬卡龍" value="1" />
-            <el-option label="戚風蛋糕" value="2" />
-            <el-option label="杯子蛋糕" value="3" />
-            <el-option label="其他" value="4" />
-          </el-select>
-          <el-select v-model="state.orderForm.name" placeholder="請選擇" size="small">
-            <el-option label="馬卡龍禮盒(8入)" value="1" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="數量：">
-          <el-input v-model="state.orderForm.count" autocomplete="off" size="small" />
-        </el-form-item>
-        <el-form-item label="商品規格："> </el-form-item>
+        <el-form-item label="商品詳情" class="exception"></el-form-item>
+        <div class="order_spces" v-for="(item, j) in state.currentOrder.OrderItem" :key="j">
+          <el-form-item label="名稱：">
+            <el-select
+              v-model="state.orderForm.goodsType[j].type"
+              placeholder="請選擇"
+              size="small"
+              @change="getSpeGoods(state.orderForm.goodsType[j].type, j)"
+            >
+              <el-option v-for="(item, i) in state.goodsTypeList" :key="i" :label="item.Name" :value="item.ID" />
+            </el-select>
+            <el-select v-model="state.orderForm.goods[j].good" placeholder="請選擇" size="small">
+              <el-option v-for="(item, i) in state.currentGoods[j]" :key="i" :label="item.Name" :value="item.Name" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="數量：">
+            <el-input v-model="state.currentOrder.OrderItem[j].Specs[0].Num" autocomplete="off" size="small" />
+          </el-form-item>
+          <el-form-item label="規格："> </el-form-item>
+        </div>
         <el-form-item label="出貨狀況：" label-width="140">
           <el-select v-model="state.orderForm.deliverState" placeholder="請選擇" size="small">
             <el-option label="未出貨" value="1" />
@@ -127,7 +130,7 @@
 import guideLine from '@/components/guideLine.vue'
 import { ref, reactive, computed, onMounted } from 'vue'
 import { callApi, deleteMessage } from '@/utils/callApi'
-import { allOrderList, deleteOrderData } from '@/service/api'
+import { allOrderList, deleteOrderData, goodsTypeList, productList } from '@/service/api'
 import moment from 'moment'
 
 export default {
@@ -137,103 +140,110 @@ export default {
   },
   setup() {
     const state = reactive({
-      orderTableData: [],
+      orderTotal: [],
+      currentOrderList: [], //頁面中的訂單資料
+      currentOrder: {}, // 選中某比特定訂單的資料
+      currentGoods: [], // 選中的商品種類中的商品
+      orderTableLength: 0,
+      goodsTypeList: [], // 所有商品種類
       orderForm: {
         date: '',
         member: '',
         discount: '',
         name: '',
         count: '',
-        type: [],
+        goodsType: [],
+        goods: [],
         deliverState: '',
         orderState: '',
         total: '',
         remark: ''
       },
+      oldSearchList: {},
       searchList: {
-        ID: 0,
-        After: 0,
-        Berfo: 0,
-        Page: 0,
-        PageLimit: 0,
+        Page: 1,
+        PageLimit: 10,
         Status: 0,
         Delivery: 0
-      },
-      currentPage: 1,
-      currentPageLimit: 10
+      }
     })
+    const searchStatus = ref('')
     const timeValue = ref('')
-    const deliver = ref('全部')
-    const order = ref('全部')
+    const deliver = ref(null)
+    const order = ref(null)
     const dialogVisible = ref(false)
     const orderList = [
       {
-        value: 1,
-        label: '全部'
-      },
-      {
-        value: 2,
+        value: 0,
         label: '未完成'
       },
       {
-        value: 3,
+        value: 1,
         label: '已完成'
       },
       {
-        value: 4,
-        label: '取消訂單'
+        value: 2,
+        label: '已取消'
       }
     ]
     const deliverList = [
       {
-        value: 1,
-        label: '全部'
-      },
-      {
-        value: 2,
+        value: 0,
         label: '未出貨'
       },
       {
-        value: 3,
+        value: 1,
         label: '已出貨'
       }
     ]
     //取得所有訂單資料
     const getOrderList = onMounted(() => {
-      const data = state.searchList
+      const data = {}
+      const params = { PageLimit: 10 }
       callApi(allOrderList, data, (res) => {
-        state.orderTableData = [...res.data.Data]
+        state.orderTableLength = res.data.Data.length
+      })
+      callApi(allOrderList, params, (res) => {
+        state.currentOrderList = [...res.data.Data]
         orderStage()
         deliveryStage()
         timeChange()
+        orderTotal()
+      })
+    })
+    //取得商品種類資料
+    const getGoodsType = onMounted(() => {
+      const data = {}
+      callApi(goodsTypeList, data, (res) => {
+        state.goodsTypeList = [...res.data.Data]
       })
     })
     //轉換訂單狀態
     const orderStage = () => {
-      for (let i in state.orderTableData) {
-        if (state.orderTableData[i].OrderStage === 0) {
-          state.orderTableData[i].OrderStage = '未完成'
+      for (let i in state.currentOrderList) {
+        if (state.currentOrderList[i].OrderStage === 0) {
+          state.currentOrderList[i].OrderStage = '未完成'
         } else {
-          state.orderTableData[i].OrderStage = '已完成'
+          state.currentOrderList[i].OrderStage = '已完成'
         }
       }
     }
     //轉換出貨狀態
     const deliveryStage = () => {
-      for (let i in state.orderTableData) {
-        if (state.orderTableData[i].DeliveryStage === 0) {
-          state.orderTableData[i].DeliveryStage = '未出貨'
+      for (let i in state.currentOrderList) {
+        if (state.currentOrderList[i].DeliveryStage === 0) {
+          state.currentOrderList[i].DeliveryStage = '未出貨'
         } else {
-          state.orderTableData[i].DeliveryStage = '已出貨'
+          state.currentOrderList[i].DeliveryStage = '已出貨'
         }
       }
     }
     //轉換時間戳
     const timeChange = () => {
-      for (let i in state.orderTableData) {
-        const timeStamp = state.orderTableData[i].CheckoutAt * 1000
+      for (let i in state.currentOrderList) {
+        const timeStamp = state.currentOrderList[i].CheckoutAt * 1000
         let time = moment(timeStamp).format('YYYY-MM-DD')
-        state.orderTableData[i].CheckoutAt = time
+        state.currentOrderList[i].CheckoutAt = time
       }
     }
     //刪除訂單
@@ -245,18 +255,92 @@ export default {
         })
       })
     }
+    //打開編輯dialog
+    const editOrder = async (obj) => {
+      state.orderForm.goodsType = []
+      state.orderForm.goods = []
+      state.currentGoods = []
+      state.currentOrder = { ...obj }
+      const goodsList = [...JSON.parse(localStorage.getItem('goodsInfo'))]
+      if (obj.Discounts.length === 0) {
+        state.orderForm.discount = '無'
+      }
+      for (let i in obj.OrderItem) {
+        state.orderForm.goodsType.push({ type: '' })
+        state.orderForm.goods.push({ good: '' })
+        for (let j in goodsList) {
+          if (obj.OrderItem[i].GoodsID == goodsList[j].ID) {
+            state.currentOrder.OrderItem[i].type = goodsList[j].GoodsType.ID
+            state.orderForm.goodsType[i].type = goodsList[j].GoodsType.ID
+            state.orderForm.goods[i].good = goodsList[j].Name
+            await getSpeGoods(state.currentOrder.OrderItem[i].type, null)
+          }
+        }
+      }
+      state.orderForm.date = obj.CheckoutAt
+      state.orderForm.member = obj.Email
+      state.orderForm.deliverState = obj.DeliveryStage
+      state.orderForm.orderState = obj.OrderStage
+      state.orderForm.total = obj.total
+      state.orderForm.remark = obj.OrderRemark
+      //console.log(state.orderForm)
+      dialogVisible.value = true
+    }
+    //
+    const handleEdit = () => {
+      dddd
+    }
+    //指定商品種類後叫出對應的商品
+    const getSpeGoods = (id, index) => {
+      const data = { GoodsType: id }
+      if (index === null) {
+        callApi(productList, data, (res) => {
+          state.currentGoods.push(res.data.Data)
+        })
+      } else {
+        callApi(productList, data, (res) => {
+          state.currentGoods.splice(index, 1, [...res.data.Data])
+          state.orderForm.goods[index].good = ''
+        })
+      }
+    }
     //改變頁碼
     const pageChange = (val) => {
-      // state.searchList.Page = val - 1
-      // searchStatus.value = 'change'
-      // handleSearch()
+      state.searchList.Page = val - 1
+      searchStatus.value = 'change'
+      handleSearch()
     }
     //改變限制資料數
     const sizeChange = (val) => {
-      // searchStatus.value = 'change'
-      // state.searchList.PageLimit = val
-      // state.searchList.Page -= 1
-      // handleSearch()
+      searchStatus.value = 'change'
+      state.searchList.PageLimit = val
+      state.searchList.Page -= 1
+      handleSearch()
+    }
+    //搜尋指定商品
+    const handleSearch = async () => {
+      if (searchStatus.value === 'change') {
+        state.oldSearchList = state.searchList
+        const data = state.oldSearchList
+        callApi(allOrderList, data, (res) => {
+          state.currentOrderList = [...res.data.Data]
+          orderStage()
+          deliveryStage()
+          timeChange()
+          orderTotal()
+        })
+        state.searchList.Page += 1
+        searchStatus.value = ''
+      } else {
+        searchList.Page -= 1
+        // const data = searchList
+        // const res = await productList(data)
+        // if (res.data.Code === 200) {
+        //   tableData.value = [...res.data.Data]
+        //   tableDataTotal.value = tableData.value
+        //   searchList.Page += 1
+        // }
+      }
     }
     // 權限表更新
     const permissionsUse = computed(() => {
@@ -271,7 +355,23 @@ export default {
       deliver.value = '全部'
       order.value = '全部'
     }
+    // 計算總金額
+    const orderTotal = () => {
+      for (let i in state.currentOrderList) {
+        let total = 0
+        for (let j in state.currentOrderList[i].OrderItem) {
+          total += state.currentOrderList[i].OrderItem[j].Specs[0].Num * state.currentOrderList[i].OrderItem[j].TimestampPice
+          state.currentOrderList[i].total = total
+        }
+      }
+    }
+    const test = (type) => {
+      console.log(order.value)
+    }
     return {
+      test,
+      orderTotal,
+      handleEdit,
       state,
       timeValue,
       deliver,
@@ -287,7 +387,12 @@ export default {
       getOrderList,
       orderStage,
       deliveryStage,
-      timeChange
+      timeChange,
+      searchStatus,
+      editOrder,
+      handleSearch,
+      getGoodsType,
+      getSpeGoods
     }
   }
 }
