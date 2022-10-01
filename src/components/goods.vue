@@ -67,7 +67,6 @@
             </el-dialog>
             <el-button type="primary" data-space-left="0.5rem" size="small" @click="addGoods()" v-if="permissionsUse.goods_add">新增商品 ＋</el-button>
             <el-dialog v-model="dialogGoodsVisible" :title="dialogTitle" width="500px" @close="handleCloseGoods">
-              <hr />
               <el-form :model="addGoodsForm">
                 <el-form-item label="前台顯示：">
                   <el-radio-group v-model="addGoodsForm.display">
