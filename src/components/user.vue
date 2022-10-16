@@ -39,11 +39,12 @@
           </div>
         </div>
         <div class="table_data">
-          <el-table :data="state.userTableData">
-            <el-table-column prop="ID" label="id" width="150" />
+          <el-table :data="state.userTableData" :default-sort="{ prop: 'ID', order: 'descending' }">
+            <el-table-column prop="ID" label="id" width="100" sortable />
             <el-table-column prop="Name" label="會員姓名" width="200" />
-            <el-table-column prop="Email" label="帳號/信箱" width="300" />
-            <el-table-column prop="grade" label="會員等級" min-width="100" />
+            <el-table-column prop="Email" label="帳號/信箱" width="280" />
+            <el-table-column prop="level" label="會員等級" min-width="100" />
+            <el-table-column prop="Consumption" label="總消費" min-width="100" align="center" />
             <el-table-column label="操作" width="200" align="center">
               <template #default="scope">
                 <div class="row horizontal center">
@@ -70,11 +71,11 @@
             <el-form-item label="收藏清單：">
               <p></p>
             </el-form-item>
-            <el-pagination :page-size="10" :pager-count="11" layout="prev, pager, next" :total="state.memberfoversList.length"></el-pagination>
-            <el-table :data="state.memberfoversList">
-              <el-table-column prop="ID" label="ID" width="80" />
-              <el-table-column prop="Name" label="商品名稱" width="200" />
-              <el-table-column prop="GoodsType.Name" label="商品分類" />
+            <el-pagination :page-size="10" :pager-count="11" layout="prev, pager, next" :total="state.memberfoversListLength"></el-pagination>
+            <el-table :data="state.memberDetailList.Favors">
+              <el-table-column prop="GoodsID" label="ID" width="80" />
+              <el-table-column prop="Goods.Name" label="商品名稱" width="200" />
+              <el-table-column prop="Goods.GoodsType.Name" label="商品分類" />
             </el-table>
           </el-form>
           <template #footer>
@@ -107,10 +108,11 @@ export default {
     const dialogUserVisible = ref(false)
     const PageLimit = ref(10)
     const Page = ref(1)
+    const userList = ref([])
     const state = reactive({
       userTableData: [],
       memberDetailList: [],
-      memberfoversList: [],
+      memberfoversListLength: 0,
       userForm: {
         name: '',
         email: '',
@@ -119,16 +121,10 @@ export default {
     })
     // 獲得會員資料
     const getMemberData = onMounted(() => {
-      const data = {
-        ID: 0,
-        After: 0,
-        Berfo: 0,
-        Page: 0,
-        PageLimit: 0
-      }
+      const data = {}
       callApi(memberData, data, (res) => {
         state.userTableData = [...res.data.Data]
-        console.log(state.userTableData)
+        levelChange()
       })
     })
     //查看會員資料
@@ -137,36 +133,25 @@ export default {
       getmemberDetailData(obj.ID)
       state.userForm.name = obj.Name
       state.userForm.email = obj.Email
+      state.userForm.level = obj.level
     }
     //取得會員詳細資料
     const getmemberDetailData = (id) => {
       const data = { ID: id }
       callApi(memberDetailData, data, (res) => {
         state.memberDetailList = res.data.Data
-        state.memberfoversList = []
         const goodsList = [...JSON.parse(localStorage.getItem('goodsInfo'))]
-        console.log(goodsList)
-        console.log(state.memberDetailList.Fovers)
-        for (let j = 0; j < goodsList.length; j++) {
-          for (let i = 0; i < state.memberDetailList.Fovers.length; i++) {
-            if (state.memberDetailList.Fovers[i].GoodsID == goodsList[j].ID) {
-              state.memberDetailList.Fovers[i].Goods.ID = goodsList[j].ID
-              state.memberDetailList.Fovers[i].Goods.Name = goodsList[j].Name
-              state.memberDetailList.Fovers[i].Goods.GoodsType.Name = goodsList[j].GoodsType.Name
-              state.memberfoversList.push(state.memberDetailList.Fovers[i].Goods)
-              console.log(state.memberfoversList)
+        if (state.memberDetailList.Favors !== undefined) {
+          console.log(state.memberDetailList)
+          state.memberfoversListLength = state.memberDetailList.Favors.length
+          for (let i in state.memberDetailList.Favors) {
+            for (let j in goodsList) {
+              if (state.memberDetailList.Favors[i].GoodsID == goodsList[j].ID) {
+                state.memberDetailList.Favors[i].Goods.Name = goodsList[j].Name
+                state.memberDetailList.Favors[i].Goods.GoodsType.Name = goodsList[j].GoodsType.Name
+              }
             }
           }
-        }
-        const consumption = state.memberDetailList.Benefits.Consumption
-        if (consumption < 5000) {
-          state.userForm.level = '銅級會員'
-        } else if (consumption >= 5000 && consumption < 10000) {
-          state.userForm.level = '銀級會員'
-        } else if (consumption >= 10000 && consumption < 20000) {
-          state.userForm.level = '金級會員'
-        } else {
-          state.userForm.level = '白金會員'
         }
       })
     }
@@ -206,8 +191,22 @@ export default {
         delete: permissions.member_manage_del.Activity
       }
     })
-    const userList = ref([])
+    //根據消費金額確認會員等級
+    const levelChange = () => {
+      for (let i in state.userTableData) {
+        if (state.userTableData[i].Consumption < 5000) {
+          state.userTableData[i].level = '銅級會員'
+        } else if (state.userTableData[i].Consumption < 10000 && state.userTableData[i].Consumption >= 5000) {
+          state.userTableData[i].level = '銀級會員'
+        } else if (state.userTableData[i].Consumption < 20000 && state.userTableData[i].Consumption >= 10000) {
+          state.userTableData[i].level = '金級會員'
+        } else if (state.userTableData[i].Consumption >= 20000) {
+          state.userTableData[i].level = '白金會員'
+        }
+      }
+    }
     return {
+      levelChange,
       userGrade,
       userList,
       deleteUser,

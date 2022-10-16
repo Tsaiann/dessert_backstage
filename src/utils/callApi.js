@@ -28,3 +28,12 @@ export const deleteMessage = (cb = () => void 0) => {
       })
     })
 }
+
+export const confirmMessage = (cb = () => void 0) => {
+  ElMessageBox.alert('商品規格數量有誤，請重新填寫！', '錯誤', {
+    confirmButtonText: '確定',
+    type: 'warning'
+  }).then((res) => {
+    cb(res)
+  })
+}

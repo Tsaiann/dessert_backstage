@@ -272,3 +272,26 @@ export const deleteOrderData = (data) =>
     },
     data: data
   })
+
+//修改訂單資料
+export const updateOrderData = (data) =>
+  request({
+    url: '/admin/order/u',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+//得到所有訂單總數
+export const getOrderTotal = (data) =>
+  request({
+    url: '/admin/order/overview',
+    method: 'post',
+    headers: {
+      token: getToken()
+    },
+    data: data
+  })
