@@ -4,22 +4,22 @@
     <div class="common_content row vertical">
       <div class="common_state" data-space-bottom="2rem">
         <div class="row horizontal v_center">
-          <span data-space-left="1rem">帳號/信箱：</span>
+          <span data-space-left="1rem">帳號：</span>
           <div data-width="40%">
-            <el-input v-model="accountInput" placeholder="請輸入帳號/信箱" clearable size="small" />
+            <el-input v-model="searchList.Account" placeholder="請輸入帳號" clearable size="small" />
+          </div>
+          <span data-space-left="1rem">信箱：</span>
+          <div data-width="40%">
+            <el-input v-model="searchList.Email" clearable size="small" placeholder="請輸入信箱" />
           </div>
           <span data-space-left="1rem">姓名：</span>
           <div data-width="40%">
-            <el-input v-model="nameInput" clearable size="small" />
+            <el-input v-model="searchList.Name" clearable size="small" placeholder="請輸入姓名" />
           </div>
-          <span data-space-left="1rem">等級</span>
-          <el-select v-model="userGrade" size="small" data-space-left="1rem" width="30">
-            <el-option v-for="item in userList" :key="item.value" :label="item.label" :value="item.value"></el-option>
-          </el-select>
         </div>
         <div class="row horizontal h_end" data-width="30%" data-space-right="1rem">
-          <el-button type="info" plain size="small">重置</el-button>
-          <el-button type="info" data-space-left="0.5rem" size="small">搜尋</el-button>
+          <el-button type="info" plain size="small" @click="reset">重置</el-button>
+          <el-button type="info" data-space-left="0.5rem" size="small" @click="handleSearch">搜尋</el-button>
         </div>
       </div>
       <div class="common_data">
@@ -27,8 +27,8 @@
           <span>每頁筆數：</span>
           <div>
             <el-pagination
-              :currentPage="Page"
-              :page-size="PageLimit"
+              :currentPage="searchList.Page"
+              :page-size="searchList.PageLimit"
               layout="sizes, total, prev, pager, next"
               :total="state.userTableData.length"
               :page-sizes="[10, 15, 20, 50]"
@@ -40,11 +40,12 @@
         </div>
         <div class="table_data">
           <el-table :data="state.userTableData" :default-sort="{ prop: 'ID', order: 'descending' }">
-            <el-table-column prop="ID" label="id" width="100" sortable />
-            <el-table-column prop="Name" label="會員姓名" width="200" />
-            <el-table-column prop="Email" label="帳號/信箱" width="280" />
-            <el-table-column prop="level" label="會員等級" min-width="100" />
-            <el-table-column prop="Consumption" label="總消費" min-width="100" align="center" />
+            <el-table-column prop="ID" label="id" width="80" sortable />
+            <el-table-column prop="Name" label="會員姓名" width="120" />
+            <el-table-column prop="Account" label="帳號" width="120" />
+            <el-table-column prop="Email" label="信箱" width="280" />
+            <el-table-column prop="level" label="會員等級" />
+            <el-table-column prop="Consumption" label="總消費" align="center" />
             <el-table-column label="操作" width="200" align="center">
               <template #default="scope">
                 <div class="row horizontal center">
@@ -102,13 +103,9 @@ export default {
     guideLine
   },
   setup() {
-    const userGrade = ref('全部')
-    const accountInput = ref('')
-    const nameInput = ref('')
     const dialogUserVisible = ref(false)
-    const PageLimit = ref(10)
-    const Page = ref(1)
-    const userList = ref([])
+    const searchStatus = ref('')
+    let oldSearchList = reactive({})
     const state = reactive({
       userTableData: [],
       memberDetailList: [],
@@ -118,6 +115,13 @@ export default {
         email: '',
         level: ''
       }
+    })
+    const searchList = reactive({
+      Page: 1,
+      PageLimit: 10,
+      Account: '',
+      Email: '',
+      Name: ''
     })
     // 獲得會員資料
     const getMemberData = onMounted(() => {
@@ -164,12 +168,6 @@ export default {
         })
       })
     }
-    const searchList = reactive({
-      Page: 1,
-      PageLimit: 20,
-      GoodsName: '',
-      GoodsType: null
-    })
     //改變頁碼
     const pageChange = (val) => {
       searchList.Page = val - 1
@@ -182,6 +180,39 @@ export default {
       searchList.PageLimit = val
       searchList.Page -= 1
       handleSearch()
+    }
+    //搜尋指定商品
+    const handleSearch = async () => {
+      if (searchStatus.value === 'change') {
+        oldSearchList = searchList
+        const data = oldSearchList
+        callApi(memberData, data, (res) => {
+          searchList.Page += 1
+          searchStatus.value = ''
+          state.userTableData = [...res.data.Data]
+          state.userTableData.forEach((el) => {
+            if (el.Show === true) {
+              el.Show = '是'
+            } else {
+              el.Show = '否'
+            }
+          })
+        })
+      } else {
+        searchList.Page -= 1
+        const data = searchList
+        callApi(memberData, data, (res) => {
+          state.userTableData = [...res.data.Data]
+          state.userTableData.forEach((el) => {
+            if (el.Show === true) {
+              el.Show = '是'
+            } else {
+              el.Show = '否'
+            }
+          })
+          searchList.Page += 1
+        })
+      }
     }
     // 權限表更新
     const permissionsUse = computed(() => {
@@ -205,24 +236,28 @@ export default {
         }
       }
     }
+    const reset = () => {
+      getMemberData()
+      searchList.Account = ''
+      searchList.Name = ''
+      searchList.Email = ''
+      searchList.Page = 1
+      searchList.PageLimit = 10
+    }
     return {
       levelChange,
-      userGrade,
-      userList,
+      reset,
       deleteUser,
       dialogUserVisible,
-      accountInput,
-      nameInput,
       permissionsUse,
       state,
       getMemberData,
       openMemberDialog,
-      PageLimit,
-      Page,
       sizeChange,
       pageChange,
       searchList,
-      getmemberDetailData
+      getmemberDetailData,
+      handleSearch
     }
   }
 }
