@@ -295,3 +295,15 @@ export const getOrderTotal = (data) =>
     },
     data: data
   })
+
+//得到所有訂單總數
+export const getOrderDetail = (data) =>
+  request({
+    url: '/admin/order/detail',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
