@@ -243,9 +243,8 @@ export default {
           message: '已成功更新管理權限!'
         })
         dialogPermissionsVisible.value = false
-        // 最後都弄好在打開要不然要一直重新登入
-        // store.commit('userModules/LOGOUT', '')
-        // router.push({ name: 'Login' })
+        store.commit('userModules/LOGOUT', '')
+        router.push({ name: 'Login' })
       })
     }
     // 刪除管理員
