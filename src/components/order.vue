@@ -23,7 +23,7 @@
           </el-select>
         </div>
         <div>
-          <el-button type="info" plain data-space-left="2rem" size="small" @click="test">重置</el-button>
+          <el-button type="info" plain data-space-left="2rem" size="small" @click="reset">重置</el-button>
           <el-button type="info" data-space-right="1rem" size="small" @click="handleSearch">搜尋</el-button>
         </div>
       </div>
@@ -44,7 +44,7 @@
           </div>
         </div>
         <div class="table_data">
-          <el-table :data="state.currentOrderList" :default-sort="{ prop: 'ID' }">
+          <el-table :data="state.currentOrderList" :default-sort="{ prop: 'ID', order: 'descending' }">
             <el-table-column prop="ID" label="id" min-width="100" sortable />
             <el-table-column prop="Email" label="會員" min-width="250" />
             <el-table-column prop="total" label="總金額" min-width="100" />
@@ -139,7 +139,7 @@
 import guideLine from '@/components/guideLine.vue'
 import { ref, reactive, computed, onMounted } from 'vue'
 import { callApi, deleteMessage, confirmMessage } from '@/utils/callApi'
-import { allOrderList, deleteOrderData, goodsTypeList, updateOrderData, productList, getOrderTotal } from '@/service/api'
+import { allOrderList, deleteOrderData, goodsTypeList, updateOrderData, productList, getOrderTotal, getOrderDetail, deleteGoodsSpecs } from '@/service/api'
 import moment from 'moment'
 import { ElMessage } from 'element-plus'
 
@@ -149,6 +149,8 @@ export default {
     guideLine
   },
   setup() {
+    const goodsList = reactive([...JSON.parse(localStorage.getItem('goodsInfo'))])
+    const orderState = ref('')
     const state = reactive({
       orderTotal: [],
       currentOrderList: [], //頁面中的訂單資料
@@ -294,92 +296,78 @@ export default {
       })
     }
     //打開編輯dialog
-    const editOrder = async (obj) => {
-      console.log(obj)
-      state.orderForm.goodsType = []
-      state.orderForm.goods = []
-      state.currentGoods = []
-      state.currentOrder = JSON.parse(JSON.stringify(obj))
-      const goodsList = [...JSON.parse(localStorage.getItem('goodsInfo'))]
-      if (obj.Discounts.length === 0) {
-        state.orderForm.discount = '無'
+    const editOrder = (obj) => {
+      const data = { ID: obj.ID }
+      callApi(getOrderDetail, data, (res) => {
+        state.currentOrder = JSON.parse(JSON.stringify(res.data.Data))
+        if (state.currentOrder.Discounts.length === 0) {
+          state.orderForm.discount = '無'
+        }
+        state.orderForm.goodsType = []
+        state.orderForm.goods = []
+        state.currentGoods = []
+        getGoodsDetail('open')
+        state.orderForm.date = obj.currentTime
+        state.orderForm.member = state.currentOrder.Email
+        state.orderForm.deliverState = obj.DeliveryStage
+        state.orderForm.orderState = obj.OrderStage
+        state.orderForm.total = obj.total
+        state.orderForm.remark = state.currentOrder.OrderRemark
+        console.log(obj)
+        dialogVisible.value = true
+      })
+    }
+    //獲得訂單內商品的詳細資料
+    const getGoodsDetail = (method) => {
+      const caseObj = {
+        open: () => {
+          for (let i in state.currentOrder.OrderItem) {
+            state.orderForm.goodsType.push({ type: '' })
+            state.orderForm.goods.push({ good: '' })
+            handleGoods(state.currentOrder.OrderItem[i], i)
+          }
+        },
+        edit: () => {
+          for (let i in state.currentOrder.OrderItem) {
+            deleteAdded(state.currentOrder.OrderItem[i])
+            orderState.value = ''
+          }
+        }
       }
-      for (let i in obj.OrderItem) {
-        state.orderForm.goodsType.push({ type: '' })
-        state.orderForm.goods.push({ good: '' })
-        for (let j in goodsList) {
-          if (obj.OrderItem[i].GoodsID == goodsList[j].ID) {
-            state.currentOrder.OrderItem[i].type = goodsList[j].GoodsType.ID
-            state.orderForm.goodsType[i].type = goodsList[j].GoodsType.ID
-            state.orderForm.goods[i].good = goodsList[j].Name
-            getSpeGoods(state.currentOrder.OrderItem[i].type, null)
-            if (state.orderForm.goodsType[i].type == 3 || state.orderForm.goodsType[i].type == 6) {
-              state.currentOrder.OrderItem[i].Specs[0].spec = goodsList[j].GoodsSpecs[1].Specs
-            } else {
-              state.currentOrder.OrderItem[i].allSpecs = [...goodsList[j].GoodsSpecs.slice(1)]
-              state.currentOrder.OrderItem[i].limit = goodsList[j].GoodsSpecs[0].Specs
-              for (let k in state.currentOrder.OrderItem[i].Specs) {
-                for (let u in state.currentOrder.OrderItem[i].allSpecs) {
-                  if (state.currentOrder.OrderItem[i].Specs[k].SpecID == state.currentOrder.OrderItem[i].allSpecs[u].ID) {
-                    state.currentOrder.OrderItem[i].allSpecs[u].Num = state.currentOrder.OrderItem[i].Specs[k].Num
-                  }
-                }
+      caseObj[method]()
+    }
+    const handleGoods = async (orderItem, index) => {
+      for (let j in goodsList) {
+        await selectGoods(goodsList[j], orderItem, index)
+        await selectSpecs(goodsList[j], orderItem, index)
+      }
+    }
+    //綁定訂單中每筆商品的規格
+    const selectSpecs = (goodsList, orderItem) => {
+      if (orderItem.GoodsID == goodsList.ID) {
+        if (orderItem.type == 3 || orderItem.type == 6) {
+          orderItem.Specs[0].spec = goodsList.GoodsSpecs[1].Specs
+        } else {
+          orderItem.allSpecs = JSON.parse(JSON.stringify(goodsList.GoodsSpecs.slice(1)))
+          orderItem.limit = goodsList.GoodsSpecs[0].Specs
+          for (let i in orderItem.Specs) {
+            for (let j in orderItem.allSpecs) {
+              if (orderItem.Specs[i].SpecID == orderItem.allSpecs[j].ID) {
+                orderItem.allSpecs[j].Num = orderItem.Specs[i].Num
               }
             }
           }
         }
       }
-      state.orderForm.date = obj.currentTime
-      state.orderForm.member = obj.Email
-      state.orderForm.deliverState = obj.DeliveryStage
-      state.orderForm.orderState = obj.OrderStage
-      state.orderForm.total = obj.total
-      state.orderForm.remark = obj.OrderRemark
-      dialogVisible.value = true
     }
-    //更新指定訂單內容
-    const handleEdit = () => {
-      delete state.currentOrder.currentTime
-      delete state.currentOrder.total
-      state.currentOrder.DeliveryStage = state.orderForm.deliverState
-      state.currentOrder.OrderStage = state.orderForm.orderState
-      orderStage('final')
-      deliveryStage('final')
-      for (let i in state.currentOrder.OrderItem) {
-        state.currentOrder.OrderItem[i].Specs.splice(1)
-        let specsTotal = 0
-        for (let j in state.currentOrder.OrderItem[i].allSpecs) {
-          if (state.currentOrder.OrderItem[i].allSpecs[j].hasOwnProperty('Num') !== false && state.currentOrder.OrderItem[i].allSpecs[j].Num != '') {
-            specsTotal += state.currentOrder.OrderItem[i].allSpecs[j].Num
-            if (specsTotal > state.currentOrder.OrderItem[i].limit * 1) {
-              confirmMessage(() => {})
-              return
-            } else {
-              state.currentOrder.OrderItem[i].Specs.push({
-                SpecID: state.currentOrder.OrderItem[i].allSpecs[j].ID,
-                Num: state.currentOrder.OrderItem[i].allSpecs[j].Num
-              })
-            }
-          }
-        }
-        if (specsTotal < state.currentOrder.OrderItem[i].limit * 1) {
-          confirmMessage(() => {})
-          return
-        }
-        state.currentOrder.OrderItem[i].Specs[0].Num = state.currentOrder.OrderItem[i].Specs[0].Num * 1
-        delete state.currentOrder.OrderItem[i].allSpecs
-        delete state.currentOrder.OrderItem[i].type
-        delete state.currentOrder.OrderItem[i].limit
+    //綁定訂單中每筆商品的名稱與種類
+    const selectGoods = (goodsList, orderItem, index) => {
+      if (orderItem.GoodsID == goodsList.ID) {
+        orderItem.type = goodsList.GoodsType.ID
+        state.orderForm.goodsType[index].type = goodsList.GoodsType.ID
+        state.orderForm.goods[index].good = goodsList.Name
+        getSpeGoods(orderItem.type, null)
       }
-      const data = state.currentOrder
-      callApi(updateOrderData, data, () => {
-        ElMessage({
-          type: 'success',
-          message: '已成功修改資料！'
-        })
-        getOrderList()
-        dialogVisible.value = false
-      })
     }
     //指定商品種類後叫出對應的商品
     const getSpeGoods = (id, index) => {
@@ -392,6 +380,79 @@ export default {
         callApi(productList, data, (res) => {
           state.currentGoods.splice(index, 1, [...res.data.Data])
           state.orderForm.goods[index].good = ''
+        })
+      }
+    }
+    //刪除後來添加的規格
+    const deleteAdded = async (orderItem) => {
+      await deleteSpecs(orderItem)
+      orderItem.Specs.splice(1)
+      await verifySpecs(orderItem)
+      if (orderState.value != 'error') {
+        orderItem.Specs[0].Num = orderItem.Specs[0].Num * 1
+        delete orderItem.allSpecs
+        delete orderItem.type
+        delete orderItem.limit
+      }
+    }
+    //刪除原本的規格
+    const deleteSpecs = (orderItem) => {
+      if (orderItem.Specs.length > 1) {
+        console.log(orderItem)
+        let newArr = JSON.parse(JSON.stringify(orderItem.Specs))
+        let newSpecs = newArr.splice(1)
+        for (let i in newSpecs) {
+          if (newSpecs[i].ID == undefined) {
+            return
+          } else {
+            const data = { ID: newSpecs[i].ID }
+            callApi(deleteGoodsSpecs, data, () => {})
+          }
+        }
+      }
+    }
+    //驗證所輸入的規格是否符合限制（不可以超過原本限定的數量）
+    const verifySpecs = (orderItem) => {
+      let specsTotal = 0
+      for (let i in orderItem.allSpecs) {
+        if (orderItem.allSpecs[i].hasOwnProperty('Num') !== false && orderItem.allSpecs[i].Num != '') {
+          specsTotal += orderItem.allSpecs[i].Num
+          if (specsTotal > orderItem.limit * 1) {
+            orderState.value = 'error'
+            confirmMessage(() => {})
+            return
+          } else {
+            orderItem.Specs.push({
+              SpecID: orderItem.allSpecs[i].ID,
+              Num: orderItem.allSpecs[i].Num
+            })
+          }
+        }
+      }
+      if (specsTotal < orderItem.limit * 1) {
+        orderState.value = 'error'
+        confirmMessage(() => {})
+        return
+      }
+    }
+    //更新指定訂單內容
+    const handleEdit = async () => {
+      state.currentOrder.DeliveryStage = state.orderForm.deliverState
+      state.currentOrder.OrderStage = state.orderForm.orderState
+      await orderStage('final')
+      await deliveryStage('final')
+      await getGoodsDetail('edit')
+      if (orderState.value != 'error') {
+        delete state.currentOrder.currentTime
+        delete state.currentOrder.total
+        const data = state.currentOrder
+        await callApi(updateOrderData, data, () => {
+          ElMessage({
+            type: 'success',
+            message: '已成功修改資料！'
+          })
+          getOrderList()
+          dialogVisible.value = false
         })
       }
     }
@@ -444,9 +505,9 @@ export default {
       }
     })
     const reset = () => {
-      timeValue.value = ''
-      deliver.value = '全部'
-      order.value = '全部'
+      state.searchList.OrderStage = ''
+      state.searchList.DeliveryStage = ''
+      getOrderList()
     }
     // 計算總金額
     const orderTotal = () => {
@@ -458,13 +519,8 @@ export default {
         }
       }
     }
-    const test = () => {
-      const time = state.currentOrderList[3].CheckoutAt
-      let timeStamp = moment(time).valueOf() / 1000
-      console.log(timeStamp)
-    }
     return {
-      test,
+      orderState,
       orderTotal,
       handleEdit,
       state,

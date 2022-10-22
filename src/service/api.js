@@ -296,10 +296,22 @@ export const getOrderTotal = (data) =>
     data: data
   })
 
-//得到所有訂單總數
+//得到訂單某筆資料
 export const getOrderDetail = (data) =>
   request({
     url: '/admin/order/detail',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+//刪除該筆訂單中的某商品規格
+export const deleteGoodsSpecs = (data) =>
+  request({
+    url: '/admin/order/specless',
     method: 'post',
     headers: {
       token: getToken(),
