@@ -24,4 +24,10 @@
       }
     }
   }
+  .el-dialog__header{
+    position: relative;
+    border-bottom: 1px solid #000;
+    border-width: 50%;
+    padding-bottom: 10px;
+  }
 }

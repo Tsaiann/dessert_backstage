@@ -32,5 +32,9 @@ html, body {
     #operate{
       text-align: center;
     }
+    .el-dialog__body{
+      max-height: 410px;
+      overflow: scroll;
+    }
   }
 }

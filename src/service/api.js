@@ -2,7 +2,7 @@ import { request } from '@/service/request'
 
 // 取得token
 export const getToken = () => {
-  return localStorage.getItem('token')
+  return JSON.parse(localStorage.getItem('userInfo')).token
 }
 
 // 獲得登入OTP碼
@@ -133,6 +133,185 @@ export const delGoodType = (params) =>
 export const delImg = (data) =>
   request({
     url: '/admin/image/d',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+// 取得管理權限表
+export const getAdminPermissions = (data) =>
+  request({
+    url: '/admin/permission/r',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+// 更新管理權限表
+export const updateAdminPermissions = (data) =>
+  request({
+    url: '/admin/permission/u',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+//取得所有管理者列表
+export const getAdminMembers = (data) =>
+  request({
+    url: '/admin/member/backstage/r',
+    method: 'get',
+    headers: { 'Content-Type': 'text/plain' },
+    data: data
+  })
+//新增管理員
+export const addAdminMembers = (data) =>
+  request({
+    url: '/admin/member/backstage/c',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    data: data
+  })
+//更新管理員資訊
+export const updateAdminMembers = (data) =>
+  request({
+    url: '/admin/member/backstage/u',
+    method: 'post',
+    headers: { 'Content-Type': 'text/plain' },
+    data: data
+  })
+//刪除管理員
+export const removeAdminMembers = (params) =>
+  request({
+    url: '/admin/member/backstage/d',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    params
+  })
+//取得照片
+export const getImg = (data) =>
+  request({
+    url: '/admin/image/r',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+//取得前台會員資料
+export const memberData = (data) =>
+  request({
+    url: '/admin/member/customer/r',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    data: data
+  })
+
+//刪除前台會員資料
+export const deleteMemberData = (data) =>
+  request({
+    url: '/admin/member/customer/d',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    data: data
+  })
+
+//取得前台會員詳細資料
+export const memberDetailData = (data) =>
+  request({
+    url: '/admin/member/customer/detail',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'text/plain'
+    },
+    data: data
+  })
+
+//取得訂單資料
+export const allOrderList = (data) =>
+  request({
+    url: '/admin/order/r',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+//刪除訂單
+export const deleteOrderData = (data) =>
+  request({
+    url: '/admin/order/d',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+//修改訂單資料
+export const updateOrderData = (data) =>
+  request({
+    url: '/admin/order/u',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+//得到所有訂單總數
+export const getOrderTotal = (data) =>
+  request({
+    url: '/admin/order/overview',
+    method: 'post',
+    headers: {
+      token: getToken()
+    },
+    data: data
+  })
+
+//得到訂單某筆資料
+export const getOrderDetail = (data) =>
+  request({
+    url: '/admin/order/detail',
+    method: 'post',
+    headers: {
+      token: getToken(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  })
+
+//刪除該筆訂單中的某商品規格
+export const deleteGoodsSpecs = (data) =>
+  request({
+    url: '/admin/order/specless',
     method: 'post',
     headers: {
       token: getToken(),

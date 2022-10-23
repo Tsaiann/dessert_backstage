@@ -1,0 +1,46 @@
+.admin{
+  width: 100%;
+  .admin-card{
+    width: 100%;
+    padding-left: 50px;
+    &__content{
+      min-height: 80px;
+    }
+    .exception{
+      font-size: 18px;
+      padding-top: 15px;
+    }
+  }
+  .el-card.is-always-shadow{
+    min-width: 250px;
+    p{
+      color: gray;
+      margin-bottom: 5px;
+    }
+    h2{
+      margin-top: 10px;
+      font-size: 32px;
+      font-weight: normal;
+    }
+  }
+  .el-dialog{
+    .el-form-item{
+      margin-bottom: 18px;
+    }
+    .permissions-list{
+      .el-form-item{
+        margin-bottom: 0px;
+        h2{
+          font-size: 18px;
+        }
+      }
+      .el-checkbox{
+        margin-right: 20px;
+        color: #C9C9C9;
+        .el-checkbox__label{
+          padding-left: 5px;
+        }
+      }
+    }
+  }
+}

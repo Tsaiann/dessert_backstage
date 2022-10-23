@@ -1,10 +1,9 @@
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
 
 export const request = (config) => {
   const service = axios.create({
     headers: config.headers,
-    baseURL: process.env.NODE_ENV === 'production' ? process.env.VUE_APP_BASE_API : '/api',
+    baseURL: process.env.NODE_ENV === 'production' ? 'https://nocodenolife.net/ann/' : '/api',
     timeout: 30000,
 
     transformRequest: [
@@ -50,13 +49,8 @@ export const request = (config) => {
       }
     },
     (error) => {
-      if (error.response.status !== 200) {
-        ElMessage({
-          showClose: true,
-          message: '輸入有誤，請重新輸入！',
-          type: 'error'
-        })
-      }
+      console.log('error', error)
+      return Promise.reject(error)
     }
   )
   return service(config)

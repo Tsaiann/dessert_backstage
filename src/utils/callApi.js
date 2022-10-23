@@ -5,11 +5,6 @@ export const callApi = async (api, data, cb = () => void 0) => {
   if (res.data.Code === 200) {
     console.log('api:', res)
     cb(res)
-  } else {
-    ElMessage({
-      type: 'error',
-      message: 'API ERROR!'
-    })
   }
 }
 
@@ -32,4 +27,13 @@ export const deleteMessage = (cb = () => void 0) => {
         message: '已取消刪除'
       })
     })
+}
+
+export const confirmMessage = (cb = () => void 0) => {
+  ElMessageBox.alert('商品規格數量有誤，請重新填寫！', '錯誤', {
+    confirmButtonText: '確定',
+    type: 'warning'
+  }).then((res) => {
+    cb(res)
+  })
 }

@@ -2,7 +2,22 @@
   .el-date-editor--daterange.el-input__inner{
     width: 300px;
   }
+  .common_state{
+    .el-select--small{
+      width: 120px;
+    }
+  }
   .el-dialog{
+    .order_spces{
+      margin-bottom: 10px;
+      color: rgb(172, 168, 168);
+      .el-form-item{
+        color: rgb(172, 168, 168);
+        &__label{
+          color: rgb(172, 168, 168);
+        }
+      }
+    }
     .el-form-item{
       &__content{
         @include flexBox(row,center,flex-start);
@@ -10,6 +25,32 @@
           margin-right: 5px;
         }
       }
+      &.exception{
+        height: 30px;
+        .el-form-item__label{
+          width: 76px;
+        }
+      }
     }
-  }  
+  }
+  .field-checkbox{
+    @include flexBox(row, center, flex-start);
+    flex-wrap: wrap;
+    &-item{
+      @include flexBox(row, center, flex-start);
+      width: 120px;
+    }
+    input[type=number]{
+      width: 30px;
+      margin: 0 0 0 10px;
+      border: 0;
+      border-bottom: 1px solid $middleGray;
+      text-align: center;
+      background: #fff;
+    }
+    input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
 }
