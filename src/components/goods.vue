@@ -168,7 +168,8 @@
 import guideLine from '@/components/guideLine.vue'
 import { ElMessage } from 'element-plus'
 import { ref, reactive, onMounted, computed } from 'vue'
-import { callApi, deleteMessage } from '@/utils/callApi'
+import { callApi } from '@/utils/callApi'
+import { deleteMessage } from '@/utils/message'
 import { addGoodsList, productList, goodsTypeList, addGoodType, delGoodType, delProduct, updateProduct, delSpecs, delImg, updateGoodsType } from '@/service/api'
 import { resetForm } from '@/utils/resetForm'
 
