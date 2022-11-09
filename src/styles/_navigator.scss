@@ -2,11 +2,10 @@
   width: 300px;
   min-height: 764px;
   h2{
+    @include size(100%, 60px);
     background: #e0e0e0;
-    height: 60px;
     line-height: 3;
     font-size: 18px;
-    width: 100%;
     text-align: center;
   }
   div{
