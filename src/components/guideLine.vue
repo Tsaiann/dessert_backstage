@@ -1,5 +1,5 @@
 <template>
-  <div class="guide_line row horizontal space_between">
+  <div class="guide row horizontal space_between">
     <p>{{ pageName }}</p>
     <div data-space-right="1rem">
       <el-button type="info" plain size="small" @click="logout">登出</el-button>
@@ -7,9 +7,9 @@
   </div>
 </template>
 <script>
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { deleteMessage } from '@/utils/callApi'
 
 export default {
   name: 'GuideLine',
@@ -20,26 +20,13 @@ export default {
     const pageName = props.msg
     const store = useStore()
     const router = useRouter()
+
+    //登入
     const logout = () => {
-      ElMessageBox.confirm('確定要登出嗎？', '提示訊息', {
-        confirmButtonText: '確定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      deleteMessage('確定要登出嗎？', '已成功登出！', '已取消', () => {
+        store.commit('userModules/LOGOUT', '')
+        router.push({ name: 'Login' })
       })
-        .then(() => {
-          store.commit('userModules/LOGOUT', '')
-          router.push({ name: 'Login' })
-          ElMessage({
-            type: 'success',
-            message: '已成功登出！'
-          })
-        })
-        .catch(() => {
-          ElMessage({
-            type: 'info',
-            message: '已取消'
-          })
-        })
     }
     return {
       pageName,
