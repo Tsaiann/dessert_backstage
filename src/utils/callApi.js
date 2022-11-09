@@ -1,39 +1,7 @@
-import { ElMessage, ElMessageBox } from 'element-plus'
-
 export const callApi = async (api, data, cb = () => void 0) => {
   const res = await api(data)
   if (res.data.Code === 200) {
     console.log('api:', res)
     cb(res)
   }
-}
-
-export const deleteMessage = (cb = () => void 0) => {
-  ElMessageBox.confirm('確定要刪除資料？', '警告', {
-    confirmButtonText: '確定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then((res) => {
-      cb(res)
-      ElMessage({
-        type: 'success',
-        message: '已刪除資料'
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: '已取消刪除'
-      })
-    })
-}
-
-export const confirmMessage = (cb = () => void 0) => {
-  ElMessageBox.alert('商品規格數量有誤，請重新填寫！', '錯誤', {
-    confirmButtonText: '確定',
-    type: 'warning'
-  }).then((res) => {
-    cb(res)
-  })
 }
