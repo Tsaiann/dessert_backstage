@@ -1,7 +1,7 @@
 .login{
   @include boxSizing;
   @include size(400px,320px);
-  @include position(absolute,50%,0,0,50%);
+  @include position(50%,0,0,50%);
   margin: -160px 0 0 -200px;
   border: 1px solid #C9C9C9;
   padding: 40px 50px;
