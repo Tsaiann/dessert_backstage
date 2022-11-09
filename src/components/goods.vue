@@ -235,13 +235,7 @@ export default {
       callApi(productList, data, (res) => {
         tableData.value = [...res.data.Data]
         tableDataTotal.value = tableData.value
-        tableData.value.forEach((el) => {
-          if (el.Show === true) {
-            el.Show = '是'
-          } else {
-            el.Show = '否'
-          }
-        })
+        changeShow(tableData.value)
       })
     })
     //獲得所有商品種類資料
@@ -259,9 +253,19 @@ export default {
         goodsTypeForm.name = ''
       })
     }
+    //前台顯示轉換
+    const changeShow = (data) => {
+      data.forEach((el) => {
+        if (el.Show === true) {
+          el.Show = '是'
+        } else {
+          el.Show = '否'
+        }
+      })
+    }
     //刪除商品種類
     const delGoodsType = (id) => {
-      deleteMessage(() => {
+      deleteMessage('確定刪除資料嗎？', '刪除成功', '已取消刪除', () => {
         const data = { ID: id }
         callApi(delGoodType, data, () => {
           getGoodsType()
@@ -272,7 +276,6 @@ export default {
     const updateGoodsTypeAlias = () => {
       updateAlias.List = typeTableData.value.slice(1)
       const data = updateAlias
-      console.log(data)
       callApi(updateGoodsType, data, () => {
         getGoodsType()
         dialogTypeVisible.value = false
@@ -316,7 +319,7 @@ export default {
     }
     //刪除商品內容
     const deleteGoods = (obj) => {
-      deleteMessage(() => {
+      deleteMessage('確定刪除資料嗎？', '刪除成功', '已取消刪除', () => {
         const data = { ID: obj.ID }
         callApi(delProduct, data, () => {
           getGoodsList()
@@ -340,7 +343,7 @@ export default {
     }
     //刪除商品規格
     const deleteSpecs = (index, id) => {
-      deleteMessage(() => {
+      deleteMessage('確定刪除資料嗎？', '刪除成功', '已取消刪除', () => {
         if (submitStatus.value === 'edit') {
           const data = { ID: id }
           callApi(delSpecs, data, () => {
@@ -419,44 +422,28 @@ export default {
       if (searchStatus.value === 'change') {
         oldSearchList = searchList
         const data = oldSearchList
-        const res = await productList(data)
-        tableData.value = [...res.data.Data]
-        tableData.value.forEach((el) => {
-          if (el.Show === true) {
-            el.Show = '是'
-          } else {
-            el.Show = '否'
-          }
+        callApi(productList, data, (res) => {
+          tableData.value = [...res.data.Data]
+          changeShow(tableData.value)
+          searchList.Page += 1
+          searchStatus.value = ''
         })
-        searchList.Page += 1
-        searchStatus.value = ''
       } else {
         searchList.Page -= 1
         const data = searchList
         const res = await productList(data)
         if (res.data.Code === 200) {
           tableData.value = [...res.data.Data]
-          tableData.value.forEach((el) => {
-            if (el.Show === true) {
-              el.Show = '是'
-            } else {
-              el.Show = '否'
-            }
-          })
+          changeShow(tableData.value)
           tableDataTotal.value = tableData.value
           searchList.Page += 1
         }
       }
     }
-
+    //關閉彈窗時清除內容
     const handleCloseGoods = () => {
-      Object.keys(addGoodsForm).forEach((item) => {
-        addGoodsForm[item] = ''
-      })
-      Object.keys(imgData).forEach((item) => {
-        imgData[item] = ''
-      })
-      addGoodsForm.GoodsSpecs = []
+      resetForm(addGoodsForm)
+      resetForm(imgData)
       imgList.value = []
       addSpecsList.list = []
       addSpecsCount[0].Specs = ''
@@ -478,8 +465,6 @@ export default {
           type: 'error'
         })
         return
-      } else {
-        console.log(imgData)
       }
     }
     //上傳圖片
@@ -522,7 +507,7 @@ export default {
     }
     //刪除圖片
     const deleteimg = (index, id) => {
-      deleteMessage(() => {
+      deleteMessage('確定刪除資料嗎？', '刪除成功', '已取消刪除', () => {
         const data = { id: id }
         callApi(delImg, data, () => {
           imgList.value.splice(index, 1)
