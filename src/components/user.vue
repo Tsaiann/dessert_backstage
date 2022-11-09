@@ -6,7 +6,7 @@
         <div class="row horizontal v_center">
           <span data-space-left="1rem">帳號：</span>
           <div data-width="40%">
-            <el-input v-model="searchList.Account" placeholder="請輸入帳號" clearable size="small" />
+            <el-input v-model="searchList.Account" clearable size="small" placeholder="請輸入帳號" />
           </div>
           <span data-space-left="1rem">信箱：</span>
           <div data-width="40%">
@@ -92,10 +92,10 @@
 
 <script>
 import guideLine from '@/components/guideLine.vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive, computed, onMounted } from 'vue'
 import { callApi, deleteMessage } from '@/utils/callApi'
 import { memberData, deleteMemberData, memberDetailData } from '@/service/api'
+import { resetForm } from '@/utils/resetForm'
 
 export default {
   name: 'User',
@@ -146,7 +146,6 @@ export default {
         state.memberDetailList = res.data.Data
         const goodsList = [...JSON.parse(localStorage.getItem('goodsInfo'))]
         if (state.memberDetailList.Favors !== undefined) {
-          console.log(state.memberDetailList)
           state.memberfoversListLength = state.memberDetailList.Favors.length
           for (let i in state.memberDetailList.Favors) {
             for (let j in goodsList) {
@@ -159,9 +158,19 @@ export default {
         }
       })
     }
+    //前台顯示轉換
+    const changeShow = (data) => {
+      data.forEach((el) => {
+        if (el.Show === true) {
+          el.Show = '是'
+        } else {
+          el.Show = '否'
+        }
+      })
+    }
     //刪除會員資料
     const deleteUser = (obj) => {
-      deleteMessage(() => {
+      deleteMessage('確定刪除會員資料嗎？', '刪除成功', '已取消刪除', () => {
         const data = { ID: obj.ID }
         callApi(deleteMemberData, data, () => {
           getMemberData()
@@ -190,26 +199,14 @@ export default {
           searchList.Page += 1
           searchStatus.value = ''
           state.userTableData = [...res.data.Data]
-          state.userTableData.forEach((el) => {
-            if (el.Show === true) {
-              el.Show = '是'
-            } else {
-              el.Show = '否'
-            }
-          })
+          changeShow(state.userTableData)
         })
       } else {
         searchList.Page -= 1
         const data = searchList
         callApi(memberData, data, (res) => {
           state.userTableData = [...res.data.Data]
-          state.userTableData.forEach((el) => {
-            if (el.Show === true) {
-              el.Show = '是'
-            } else {
-              el.Show = '否'
-            }
-          })
+          changeShow(state.userTableData)
           searchList.Page += 1
         })
       }
@@ -238,26 +235,24 @@ export default {
     }
     const reset = () => {
       getMemberData()
-      searchList.Account = ''
-      searchList.Name = ''
-      searchList.Email = ''
+      resetForm(searchList)
       searchList.Page = 1
       searchList.PageLimit = 10
     }
     return {
-      levelChange,
-      reset,
-      deleteUser,
-      dialogUserVisible,
-      permissionsUse,
       state,
       getMemberData,
+      searchList,
+      dialogUserVisible,
+      permissionsUse,
       openMemberDialog,
       sizeChange,
       pageChange,
-      searchList,
       getmemberDetailData,
-      handleSearch
+      handleSearch,
+      levelChange,
+      deleteUser,
+      reset
     }
   }
 }
