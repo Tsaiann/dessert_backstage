@@ -105,9 +105,10 @@ import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { permissionName } from '@/service/permissions'
 import { getAdminMembers, addAdminMembers, updateAdminPermissions, removeAdminMembers, getAdminPermissions } from '@/service/api'
-import { callApi, deleteMessage } from '@/utils/callApi'
+import { callApi } from '@/utils/callApi'
 import { ElMessage } from 'element-plus'
 import { resetForm } from '@/utils/resetForm'
+import { deleteMessage } from '@/utils/message'
 
 export default {
   name: 'Admin',
