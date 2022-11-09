@@ -4,9 +4,9 @@
     <div>
       <el-button type="primary" data-space-all="1rem" size="small" v-if="permissionsUse.add" @click="dialogAddVisible = true">新增管理員 ＋</el-button>
     </div>
-    <div class="admin-card row horizontal stretch wrap">
+    <div class="card row horizontal stretch wrap">
       <el-card shadow="always" v-for="(item, i) in state.tableData" :key="i" data-space-right="1rem">
-        <div class="admin-card__content">
+        <div class="card_content">
           <p>管理員ID：{{ item.ID }}</p>
           <p>{{ item.Email }}</p>
           <h2>{{ item.Name }}</h2>
@@ -20,9 +20,8 @@
       </el-card>
     </div>
     <el-dialog v-model="dialogAddVisible" title="新增管理員" width="400px" @close="closeDialog">
-      <hr />
       <el-form :model="state.adminForm" :rules="formRules" ref="adminAddForm">
-        <el-form-item label="顯示名稱：" prop="name">
+        <el-form-item label="顯示名稱：" prop="name" data-space-top="1rem">
           <el-input v-model="state.adminForm.name" autocomplete="off" size="small" />
         </el-form-item>
         <el-form-item label="管理帳號：" prop="account">
@@ -145,7 +144,8 @@ export default {
       account: [{ required: true, message: '帳號不可留空', trigger: 'blur' }],
       name: [{ required: true, message: '名稱不可留空', trigger: 'blur' }],
       pwd: [{ required: true, message: '密碼不可留空', trigger: 'blur' }],
-      confirmPwd: [{ validator: handleConfirmPwd, trigger: 'blur' }]
+      confirmPwd: [{ validator: handleConfirmPwd, trigger: 'blur' }],
+      email: [{ required: true, message: '信箱不可留空', trigger: 'blur' }]
     })
     //確認再次輸入密碼與原本相同
     function handleConfirmPwd(rule, value, callback) {
@@ -182,6 +182,11 @@ export default {
           message: '成功新增管理員!'
         })
         dialogAddVisible.value = false
+      }).catch(() => {
+        ElMessage({
+          type: 'error',
+          message: '欄位不可為空'
+        })
       })
     }
     // 製作權限設定表方便放入彈窗裡
@@ -211,7 +216,6 @@ export default {
           }
         })
       }
-      console.log(state.permissions)
     }
     // 打開權限設定表
     const openPermissions = async (obj) => {
@@ -249,7 +253,7 @@ export default {
     }
     // 刪除管理員
     const deleteMember = (id) => {
-      deleteMessage(() => {
+      deleteMessage('確定刪除此權限管理員嗎？', '刪除成功', '已取消刪除', () => {
         const data = { ID: id }
         callApi(removeAdminMembers, data, () => {
           getAdminList()
@@ -278,15 +282,15 @@ export default {
       state,
       formRules,
       listName,
-      addMember,
       getAdminList,
+      permissionsUse,
+      addMember,
       closeDialog,
       handleConfirmPwd,
       createPermissionsList,
       openPermissions,
       deleteMember,
-      updatePermissions,
-      permissionsUse
+      updatePermissions
     }
   }
 }
