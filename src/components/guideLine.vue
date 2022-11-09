@@ -9,7 +9,7 @@
 <script>
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { deleteMessage } from '@/utils/callApi'
+import { deleteMessage } from '@/utils/message'
 
 export default {
   name: 'GuideLine',
