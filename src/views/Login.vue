@@ -22,34 +22,32 @@ import { useRouter } from 'vue-router'
 import { getOtp, login, getAdminPermissions } from '@/service/api'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
-import { callApi } from '../utils/callApi'
+import { callApi } from '@/utils/callApi'
 
 export default {
   name: 'Login',
   setup() {
     const store = useStore()
     const router = useRouter()
-    let otp = reactive({ OTP: '' })
     const loginForm = reactive({
       account: '',
       password: '',
       otp: ''
     })
+    let otp = reactive({ OTP: '' })
+    // 初始化
+    const init = () => {
+      removeLogin()
+      callOtp()
+    }
     //取得otp
     const callOtp = onMounted(async () => {
       const data = ''
-      const res = await getOtp(data)
-      if (res.data.Code === 200) {
+      callApi(getOtp, data, (res) => {
         otp.OTP = res.data.Data.OTP
-      } else {
-        ElMessage({
-          message: 'OTP API ERROR!!',
-          type: 'error'
-        })
-      }
+      })
     })
-
-    // 取得當前管理員的權限列表並更新store裡的資訊
+    //取得當前管理員的權限列表並更新store裡的資訊
     const getPermission = async () => {
       const id = store.state.userModules.userStatus.id
       const data = { MemberID: id }
@@ -57,35 +55,31 @@ export default {
         store.commit('userModules/SET_USERPERMISSIONS', res.data.Data.Permission)
       })
     }
-
     //先取得權限表後才轉換路由
     const hanleRouterChange = async () => {
       await getPermission()
       await router.push({ name: 'Home' })
     }
-
-    const hanleLogin = async () => {
-      if (loginForm.account !== '' && loginForm.password !== '' && loginForm.otp !== '' && loginForm.otp === otp.OTP) {
-        await callApi(login, loginForm, async (res) => {
+    // 檢查登入條件是否符合
+    const checkLogin = (options) => {
+      const { account, password, otp, confirmOtp } = options
+      const login = account !== '' && password !== '' && otp !== '' && otp === confirmOtp
+      return login
+    }
+    // 登入
+    const hanleLogin = () => {
+      if (checkLogin({ account: loginForm.account, password: loginForm.password, otp: loginForm.otp, confirmOtp: otp.OTP })) {
+        callApi(login, loginForm, async (res) => {
           store.commit('userModules/SET_USERSTATUS', res.data.Data)
           await hanleRouterChange()
-        }).catch(() => {
-          ElMessage({
-            showClose: true,
-            message: '輸入有誤！',
-            type: 'error'
-          })
-          removeLogin()
-          callOtp()
         })
       } else {
         ElMessage({
           showClose: true,
-          message: '欄位不能為空，請重新輸入！',
+          message: '欄位不可為空或輸入有誤！',
           type: 'error'
         })
-        removeLogin()
-        callOtp()
+        init()
       }
     }
     const removeLogin = () => {
@@ -94,11 +88,12 @@ export default {
       })
     }
     return {
+      callOtp,
+      otp,
       loginForm,
       hanleLogin,
       removeLogin,
-      callOtp,
-      otp
+      init
     }
   }
 }
