@@ -93,7 +93,8 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ref, reactive, computed, onMounted } from 'vue'
-import { callApi, deleteMessage } from '@/utils/callApi'
+import { callApi } from '@/utils/callApi'
+import { deleteMessage } from '@/utils/message'
 import { memberData, deleteMemberData, memberDetailData } from '@/service/api'
 import { resetForm } from '@/utils/resetForm'
 
