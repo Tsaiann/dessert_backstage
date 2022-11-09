@@ -5,7 +5,7 @@
       <div class="row horizontal v_center" data-space-bottom="3rem">
         <span data-space-right="0.5rem">日期區間：</span>
         <el-date-picker
-          v-model="value"
+          v-model="timeValue"
           type="daterange"
           start-placeholder="開始日期"
           end-placeholder="結束日期"
@@ -14,7 +14,7 @@
         </el-date-picker>
         <el-button type="info" data-space-left="0.5rem">搜尋</el-button>
       </div>
-      <div class="revenue" data-space-bottom="3rem">
+      <div data-space-bottom="3rem">
         <h2>總營業額:</h2>
         <span></span>
       </div>
@@ -44,7 +44,7 @@ export default {
     guideLine
   },
   setup() {
-    const value = ref('')
+    const timeValue = ref('')
     const store = useStore()
     const cakeItem = reactive([
       {
@@ -64,6 +64,7 @@ export default {
         count: 4
       }
     ])
+    // 獲得所有商品資料
     const getGoodsList = onMounted(async () => {
       const data = {}
       await callApi(productList, data, (res) => {
@@ -71,7 +72,7 @@ export default {
       })
     })
     return {
-      value,
+      timeValue,
       cakeItem,
       getGoodsList
     }
