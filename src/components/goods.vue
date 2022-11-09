@@ -93,7 +93,7 @@
                     <el-button icon="el-icon-circle-plus-outline" size="small" round @click="addSpecs()">新增規格</el-button>
                   </div>
                   <div class="row horizontal wrap">
-                    <div class="specs-list" v-for="(item, i) in addSpecsList.list" :key="i">
+                    <div class="specs_list" v-for="(item, i) in addSpecsList.list" :key="i">
                       <el-button size="small" circle icon="el-icon-error" @click="deleteSpecs(i, item.ID)" />
                       <span>{{ item.Specs }}</span>
                       <el-input v-model="item.Specs" size="small" placeholder="商品規格" />
@@ -116,8 +116,8 @@
                     </label>
                     <el-button type="primary" size="small" @click="handleUpload()">上傳圖片</el-button>
                   </div>
-                  <span class="upload-text">{{ imgData.fileName }}</span>
-                  <div class="upload-list" v-for="(item, i) in imgList" :key="i">
+                  <span class="text">{{ imgData.fileName }}</span>
+                  <div class="list" v-for="(item, i) in imgList" :key="i">
                     <div class="row horizontal v_center">
                       <img :src="item.img" alt="" />
                       <p data-space-left="1rem">{{ item.fileName }}</p>
