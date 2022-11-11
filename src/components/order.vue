@@ -32,8 +32,8 @@
           <span>每頁筆數：</span>
           <div>
             <el-pagination
-              :currentPage="state.currentPage"
-              :page-size="state.currentPageLimit"
+              :currentPage="state.searchList.Page"
+              :page-size="state.searchList.PageLimit"
               layout="sizes, total, prev, pager, next"
               :total="state.orderTableLength"
               :page-sizes="[10, 15, 20, 50]"
@@ -44,8 +44,8 @@
           </div>
         </div>
         <div class="table_data">
-          <el-table :data="state.currentOrderList" :default-sort="{ prop: 'ID', order: 'descending' }">
-            <el-table-column prop="ID" label="id" min-width="100" sortable />
+          <el-table :data="state.currentOrderList">
+            <el-table-column prop="ID" label="id" min-width="100" />
             <el-table-column prop="Email" label="會員" min-width="250" />
             <el-table-column prop="total" label="總金額" min-width="100" />
             <el-table-column prop="OrderStage" label="訂單狀態" min-width="100" />
@@ -83,12 +83,11 @@
               v-model="state.orderForm.goodsType[j].type"
               placeholder="請選擇"
               size="small"
-              disabled
               @change="getSpeGoods(state.orderForm.goodsType[j].type, j)"
             >
               <el-option v-for="(item, i) in state.goodsTypeList" :key="i" :label="item.Name" :value="item.ID" />
             </el-select>
-            <el-select v-model="state.orderForm.goods[j].good" placeholder="請選擇" size="small" disabled>
+            <el-select v-model="state.orderForm.goods[j].good" placeholder="請選擇" size="small">
               <el-option v-for="(item, i) in state.currentGoods[j]" :key="i" :label="item.Name" :value="item.Name" />
             </el-select>
           </el-form-item>
@@ -138,7 +137,8 @@
 <script>
 import guideLine from '@/components/guideLine.vue'
 import { ref, reactive, computed, onMounted } from 'vue'
-import { callApi, deleteMessage, confirmMessage } from '@/utils/callApi'
+import { callApi } from '@/utils/callApi'
+import { deleteMessage, confirmMessage } from '@/utils/message'
 import { allOrderList, deleteOrderData, goodsTypeList, updateOrderData, productList, getOrderTotal, getOrderDetail, deleteGoodsSpecs } from '@/service/api'
 import moment from 'moment'
 import { ElMessage } from 'element-plus'
@@ -153,9 +153,10 @@ export default {
     const orderState = ref('')
     const state = reactive({
       orderTotal: [],
+      allOrder: [],
       currentOrderList: [], //頁面中的訂單資料
       currentOrder: {}, // 選中某比特定訂單的資料
-      currentGoods: [], // 選中的商品種類中的商品
+      currentGoods: [], // 選中的商品種類中的所有商品
       orderTableLength: 0,
       goodsTypeList: [], // 所有商品種類
       orderForm: {
@@ -210,17 +211,22 @@ export default {
     ]
     //取得所有訂單資料
     const getOrderList = onMounted(() => {
-      const data = {}
-      const params = { PageLimit: 10 }
-      callApi(getOrderTotal, data, (res) => {
-        state.orderTableLength = res.data.Data.OrderTotalCount
-      })
+      const params = {}
       callApi(allOrderList, params, (res) => {
-        state.currentOrderList = [...res.data.Data]
+        state.allOrder = JSON.parse(JSON.stringify(res.data.Data)).reverse()
+        let obj = res.data.Data.reverse()
+        state.currentOrderList = [...obj.slice(0, 10)]
         orderStage('init')
         deliveryStage('init')
         timeChange()
         orderTotal()
+      })
+    })
+    // 獲得訂單所有筆數
+    const getOrderLength = onMounted(() => {
+      const data = {}
+      callApi(getOrderTotal, data, (res) => {
+        state.orderTableLength = res.data.Data.OrderTotalCount
       })
     })
     //取得商品種類資料
@@ -288,7 +294,7 @@ export default {
     }
     //刪除訂單
     const deleteOrder = (id) => {
-      deleteMessage(() => {
+      deleteMessage('確定刪除訂單嗎？', '刪除成功', '已取消刪除', () => {
         const data = { ID: id }
         callApi(deleteOrderData, data, () => {
           getOrderList()
@@ -313,7 +319,6 @@ export default {
         state.orderForm.orderState = obj.OrderStage
         state.orderForm.total = obj.total
         state.orderForm.remark = state.currentOrder.OrderRemark
-        console.log(obj)
         dialogVisible.value = true
       })
     }
@@ -398,7 +403,6 @@ export default {
     //刪除原本的規格
     const deleteSpecs = (orderItem) => {
       if (orderItem.Specs.length > 1) {
-        console.log(orderItem)
         let newArr = JSON.parse(JSON.stringify(orderItem.Specs))
         let newSpecs = newArr.splice(1)
         for (let i in newSpecs) {
@@ -458,42 +462,39 @@ export default {
     }
     //改變頁碼
     const pageChange = (val) => {
-      state.searchList.Page = val - 1
+      state.searchList.Page = val
       searchStatus.value = 'change'
-      handleSearch()
+      handleSearch(val, state.searchList.PageLimit)
     }
     //改變限制資料數
     const sizeChange = (val) => {
       searchStatus.value = 'change'
       state.searchList.PageLimit = val
-      state.searchList.Page -= 1
-      handleSearch()
+      handleSearch(state.searchList.Page, val)
     }
     //搜尋指定商品
-    const handleSearch = async () => {
+    const handleSearch = async (page, size) => {
       if (searchStatus.value === 'change') {
-        state.oldSearchList = state.searchList
-        const data = state.oldSearchList
-        callApi(allOrderList, data, (res) => {
-          state.currentOrderList = [...res.data.Data]
-          orderStage('init')
-          deliveryStage('init')
-          timeChange()
-          orderTotal()
-        })
-        state.searchList.Page += 1
+        console.log(state.allOrder)
+        let newOrderList = state.allOrder.slice((page - 1) * 10, (page - 1) * 10 + size)
+        state.currentOrderList = [...newOrderList]
+        orderStage('init')
+        deliveryStage('init')
+        timeChange()
+        orderTotal()
         searchStatus.value = ''
       } else {
-        state.searchList.Page -= 1
-        const data = state.searchList
+        state.searchList.Page = 1
+        const data = { OrderStage: state.searchList.OrderStage, DeliveryStage: state.searchList.DeliveryStage }
         callApi(allOrderList, data, (res) => {
-          state.currentOrderList = [...res.data.Data]
+          let obj = res.data.Data.reverse()
+          state.currentOrderList = [...obj.slice(0, state.searchList.PageLimit)]
+          state.orderTableLength = state.currentOrderList.length
           orderStage('init')
           deliveryStage('init')
           timeChange()
           orderTotal()
         })
-        state.searchList.Page += 1
       }
     }
     // 權限表更新
@@ -504,11 +505,6 @@ export default {
         delete: permissions.order_manage_del.Activity
       }
     })
-    const reset = () => {
-      state.searchList.OrderStage = ''
-      state.searchList.DeliveryStage = ''
-      getOrderList()
-    }
     // 計算總金額
     const orderTotal = () => {
       for (let i in state.currentOrderList) {
@@ -519,11 +515,14 @@ export default {
         }
       }
     }
+    const reset = () => {
+      state.searchList.OrderStage = ''
+      state.searchList.DeliveryStage = ''
+      getOrderList()
+    }
     return {
-      orderState,
-      orderTotal,
-      handleEdit,
       state,
+      orderState,
       timeValue,
       deliver,
       order,
@@ -531,18 +530,21 @@ export default {
       deliverList,
       dialogVisible,
       permissionsUse,
+      getOrderList,
+      searchStatus,
+      getGoodsType,
+      getOrderLength,
       deleteOrder,
       reset,
       pageChange,
       sizeChange,
-      getOrderList,
+      orderTotal,
+      handleEdit,
       orderStage,
       deliveryStage,
       timeChange,
-      searchStatus,
       editOrder,
       handleSearch,
-      getGoodsType,
       getSpeGoods
     }
   }
