@@ -13,6 +13,7 @@ export const getOtp = (params) =>
     headers: { 'Content-Type': 'text/plain' },
     params
   })
+
 // login
 export const login = (params) =>
   request({
@@ -23,6 +24,9 @@ export const login = (params) =>
     },
     data: params
   })
+
+/* Goods List */
+
 // 取得所有商品資料
 export const productList = (params) =>
   request({
@@ -70,6 +74,7 @@ export const delProduct = (params) =>
     },
     params
   })
+
 // 刪除商品規格
 export const delSpecs = (params) =>
   request({
@@ -141,6 +146,8 @@ export const delImg = (data) =>
     data: data
   })
 
+/* Permissions List */
+
 // 取得管理權限表
 export const getAdminPermissions = (data) =>
   request({
@@ -152,6 +159,7 @@ export const getAdminPermissions = (data) =>
     },
     data: data
   })
+
 // 更新管理權限表
 export const updateAdminPermissions = (data) =>
   request({
@@ -163,6 +171,9 @@ export const updateAdminPermissions = (data) =>
     },
     data: data
   })
+
+/* Admin List */
+
 //取得所有管理者列表
 export const getAdminMembers = (data) =>
   request({
@@ -171,6 +182,7 @@ export const getAdminMembers = (data) =>
     headers: { 'Content-Type': 'text/plain' },
     data: data
   })
+
 //新增管理員
 export const addAdminMembers = (data) =>
   request({
@@ -182,6 +194,7 @@ export const addAdminMembers = (data) =>
     },
     data: data
   })
+
 //更新管理員資訊
 export const updateAdminMembers = (data) =>
   request({
@@ -190,6 +203,7 @@ export const updateAdminMembers = (data) =>
     headers: { 'Content-Type': 'text/plain' },
     data: data
   })
+
 //刪除管理員
 export const removeAdminMembers = (params) =>
   request({
@@ -201,17 +215,8 @@ export const removeAdminMembers = (params) =>
     },
     params
   })
-//取得照片
-export const getImg = (data) =>
-  request({
-    url: '/admin/image/r',
-    method: 'post',
-    headers: {
-      token: getToken(),
-      'Content-Type': 'application/json'
-    },
-    data: data
-  })
+
+/* member List */
 
 //取得前台會員資料
 export const memberData = (data) =>
@@ -248,6 +253,8 @@ export const memberDetailData = (data) =>
     },
     data: data
   })
+
+/* Order List */
 
 //取得訂單資料
 export const allOrderList = (data) =>
