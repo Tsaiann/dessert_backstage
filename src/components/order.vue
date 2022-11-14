@@ -519,6 +519,7 @@ export default {
       state.searchList.OrderStage = ''
       state.searchList.DeliveryStage = ''
       getOrderList()
+      getOrderLength()
     }
     return {
       state,
