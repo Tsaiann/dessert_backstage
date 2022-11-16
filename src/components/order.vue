@@ -83,11 +83,11 @@
               v-model="state.orderForm.goodsType[j].type"
               placeholder="請選擇"
               size="small"
-              @change="getSpeGoods(state.orderForm.goodsType[j].type, j)"
+              @change="getSpeGoods(state.orderForm.goodsType[j].type, j, item)"
             >
               <el-option v-for="(item, i) in state.goodsTypeList" :key="i" :label="item.Name" :value="item.ID" />
             </el-select>
-            <el-select v-model="state.orderForm.goods[j].good" placeholder="請選擇" size="small">
+            <el-select v-model="state.orderForm.goods[j].good" placeholder="請選擇" size="small" @change="changeGoods(state.orderForm.goods[j].good, item)">
               <el-option v-for="(item, i) in state.currentGoods[j]" :key="i" :label="item.Name" :value="item.Name" />
             </el-select>
           </el-form-item>
@@ -95,7 +95,11 @@
             <el-input v-model="state.currentOrder.OrderItem[j].Specs[0].Num" autocomplete="off" size="small" />
           </el-form-item>
           <el-form-item label="規格：">
-            <p v-if="item.type == 3 || item.type == 6">{{ item.Specs[0].spec }}</p>
+            <div class="field-checkbox" v-if="item.type == 3 || item.type == 6">
+              <div class="field-checkbox-item" v-for="(item, k) in state.currentOrder.OrderItem[j].allSpecs" :key="k">
+                <p>{{ item.Specs }}</p>
+              </div>
+            </div>
             <div class="field-checkbox" v-else>
               <div class="field-checkbox-item" v-for="(item, k) in state.currentOrder.OrderItem[j].allSpecs" :key="k">
                 <p>{{ item.Specs }} :</p>
@@ -177,11 +181,13 @@ export default {
         Page: 1,
         PageLimit: 10,
         OrderStage: '',
-        DeliveryStage: ''
+        DeliveryStage: '',
+        Berfo: 0,
+        After: 0
       }
     })
     const searchStatus = ref('')
-    const timeValue = ref('')
+    const timeValue = ref([])
     const deliver = ref(null)
     const order = ref(null)
     const dialogVisible = ref(false)
@@ -218,7 +224,7 @@ export default {
         state.currentOrderList = [...obj.slice(0, 10)]
         orderStage('init')
         deliveryStage('init')
-        timeChange()
+        timeChange('timestamp')
         orderTotal()
       })
     })
@@ -284,13 +290,28 @@ export default {
       }
       caseObj[type]()
     }
-    //轉換時間戳
-    const timeChange = () => {
-      for (let i in state.currentOrderList) {
-        const timeStamp = state.currentOrderList[i].CheckoutAt * 1000
-        let time = moment(timeStamp).format('YYYY-MM-DD')
-        state.currentOrderList[i].currentTime = time
+    //轉換時間戳/時間
+    const timeChange = (method) => {
+      const caseObj = {
+        timestamp: () => {
+          for (let i in state.currentOrderList) {
+            const timeStamp = state.currentOrderList[i].CheckoutAt * 1000
+            let time = moment(timeStamp).format('YYYY-MM-DD')
+            state.currentOrderList[i].currentTime = time
+          }
+        },
+        after: () => {
+          const afterTime = timeValue.value[0]
+          let aftTime = moment(afterTime).valueOf() / 1000
+          state.searchList.After = aftTime
+        },
+        before: () => {
+          const befoTime = timeValue.value[1]
+          let befTime = moment(befoTime).valueOf() / 1000
+          state.searchList.Berfo = befTime
+        }
       }
+      caseObj[method]()
     }
     //刪除訂單
     const deleteOrder = (id) => {
@@ -344,14 +365,16 @@ export default {
     const handleGoods = async (orderItem, index) => {
       for (let j in goodsList) {
         await selectGoods(goodsList[j], orderItem, index)
-        await selectSpecs(goodsList[j], orderItem, index)
+        await selectSpecs(goodsList[j], orderItem)
       }
     }
     //綁定訂單中每筆商品的規格
     const selectSpecs = (goodsList, orderItem) => {
       if (orderItem.GoodsID == goodsList.ID) {
         if (orderItem.type == 3 || orderItem.type == 6) {
-          orderItem.Specs[0].spec = goodsList.GoodsSpecs[1].Specs
+          orderItem.allSpecs = [{ Specs: goodsList.GoodsSpecs[1].Specs }]
+          orderItem.allSpecs[0].Num = orderItem.Specs[0].Num
+          delete orderItem.limit
         } else {
           orderItem.allSpecs = JSON.parse(JSON.stringify(goodsList.GoodsSpecs.slice(1)))
           orderItem.limit = goodsList.GoodsSpecs[0].Specs
@@ -366,26 +389,39 @@ export default {
       }
     }
     //綁定訂單中每筆商品的名稱與種類
-    const selectGoods = (goodsList, orderItem, index) => {
-      if (orderItem.GoodsID == goodsList.ID) {
+    const selectGoods = async (goodsList, orderItem, index) => {
+      if (orderItem.GoodsID === goodsList.ID) {
         orderItem.type = goodsList.GoodsType.ID
         state.orderForm.goodsType[index].type = goodsList.GoodsType.ID
         state.orderForm.goods[index].good = goodsList.Name
-        getSpeGoods(orderItem.type, null)
+        await getSpeGoods(orderItem.type, null)
       }
     }
     //指定商品種類後叫出對應的商品
-    const getSpeGoods = (id, index) => {
+    const getSpeGoods = async (id, index, item) => {
       const data = { GoodsType: id }
       if (index === null) {
-        callApi(productList, data, (res) => {
+        await callApi(productList, data, (res) => {
           state.currentGoods.push(res.data.Data)
+          console.log(state.currentGoods)
         })
       } else {
-        callApi(productList, data, (res) => {
+        await callApi(productList, data, (res) => {
           state.currentGoods.splice(index, 1, [...res.data.Data])
           state.orderForm.goods[index].good = ''
+          item.allSpecs = []
         })
+      }
+    }
+    // 更改原訂單中商品項目
+    const changeGoods = (name, orderItem) => {
+      for (let i in goodsList) {
+        if (name === goodsList[i].Name) {
+          orderItem.GoodsID = goodsList[i].ID
+          orderItem.type = goodsList[i].GoodsTypeID
+          orderItem.TimestampPice = goodsList[i].UnitPrice
+          selectSpecs(goodsList[i], orderItem)
+        }
       }
     }
     //刪除後來添加的規格
@@ -480,19 +516,30 @@ export default {
         state.currentOrderList = [...newOrderList]
         orderStage('init')
         deliveryStage('init')
-        timeChange()
+        timeChange('timestamp')
         orderTotal()
         searchStatus.value = ''
       } else {
         state.searchList.Page = 1
-        const data = { OrderStage: state.searchList.OrderStage, DeliveryStage: state.searchList.DeliveryStage }
+        if (timeValue.value[0] !== undefined) {
+          timeChange('after')
+        }
+        if (timeValue.value[1] !== undefined) {
+          timeChange('before')
+        }
+        const data = {
+          OrderStage: state.searchList.OrderStage,
+          DeliveryStage: state.searchList.DeliveryStage,
+          After: state.searchList.After,
+          Berfo: state.searchList.Berfo
+        }
         callApi(allOrderList, data, (res) => {
           let obj = res.data.Data.reverse()
           state.currentOrderList = [...obj.slice(0, state.searchList.PageLimit)]
           state.orderTableLength = state.currentOrderList.length
           orderStage('init')
           deliveryStage('init')
-          timeChange()
+          timeChange('timestamp')
           orderTotal()
         })
       }
@@ -518,6 +565,7 @@ export default {
     const reset = () => {
       state.searchList.OrderStage = ''
       state.searchList.DeliveryStage = ''
+      timeValue.value = []
       getOrderList()
       getOrderLength()
     }
@@ -546,7 +594,8 @@ export default {
       timeChange,
       editOrder,
       handleSearch,
-      getSpeGoods
+      getSpeGoods,
+      changeGoods
     }
   }
 }
