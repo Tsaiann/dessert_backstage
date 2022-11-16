@@ -6,8 +6,8 @@ html, body {
   width: $width;
   height: $height;
 }
-@mixin position($position, $top, $right, $bottom, $left){
-  position: $position;
+@mixin position($top, $right, $bottom, $left){
+  position: absolute;
   top: $top;
   right: $right;
   bottom: $bottom;
@@ -20,7 +20,7 @@ html, body {
   .home{
     @include size(100%,100%);
     white-space:nowrap;
-    .guide_line{
+    .guide{
       @include boxSizing;
       @include size(100%, 55.5px);
       background: #d3d3d3;
