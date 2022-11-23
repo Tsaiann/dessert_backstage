@@ -566,6 +566,8 @@ export default {
       state.searchList.OrderStage = ''
       state.searchList.DeliveryStage = ''
       timeValue.value = []
+      state.searchList.Berfo = 0
+      state.searchList.After = 0
       getOrderList()
       getOrderLength()
     }
