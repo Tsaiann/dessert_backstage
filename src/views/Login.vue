@@ -53,7 +53,15 @@ export default {
       const id = store.state.userModules.userStatus.id
       const data = { MemberID: id }
       await callApi(getAdminPermissions, data, (res) => {
+        console.log(res)
         store.commit('userModules/SET_USERPERMISSIONS', res.data.Data.Permission)
+      }).catch(() => {
+        ElMessage({
+          showClose: true,
+          message: '沒有使用權限！',
+          type: 'error'
+        })
+        init()
       })
     }
     //先取得權限表後才轉換路由
