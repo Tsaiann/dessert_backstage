@@ -146,6 +146,7 @@ import { deleteMessage, confirmMessage } from '@/utils/message'
 import { allOrderList, deleteOrderData, goodsTypeList, updateOrderData, productList, getOrderTotal, getOrderDetail, deleteGoodsSpecs } from '@/service/api'
 import moment from 'moment'
 import { ElMessage } from 'element-plus'
+import { resetForm } from '@/utils/resetForm'
 
 export default {
   name: 'Order',
@@ -226,15 +227,16 @@ export default {
         deliveryStage('init')
         timeChange('timestamp')
         orderTotal()
+        getOrderLength()
       })
     })
     // 獲得訂單所有筆數
-    const getOrderLength = onMounted(() => {
+    const getOrderLength = () => {
       const data = {}
       callApi(getOrderTotal, data, (res) => {
         state.orderTableLength = res.data.Data.OrderTotalCount
       })
-    })
+    }
     //取得商品種類資料
     const getGoodsType = onMounted(() => {
       const data = {}
@@ -563,11 +565,10 @@ export default {
       }
     }
     const reset = () => {
-      state.searchList.OrderStage = ''
-      state.searchList.DeliveryStage = ''
       timeValue.value = []
-      state.searchList.Berfo = 0
-      state.searchList.After = 0
+      resetForm(state.searchList)
+      state.searchList.Page = 1
+      state.searchList.PageLimit = 10
       getOrderList()
     }
     return {
