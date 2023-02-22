@@ -569,7 +569,6 @@ export default {
       state.searchList.Berfo = 0
       state.searchList.After = 0
       getOrderList()
-      getOrderLength()
     }
     return {
       state,
