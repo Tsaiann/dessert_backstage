@@ -23,6 +23,7 @@ import { getOtp, login, getAdminPermissions } from '@/service/api'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import { callApi } from '@/utils/callApi'
+import { resetForm } from '@/utils/resetForm'
 
 export default {
   name: 'Login',
@@ -69,9 +70,9 @@ export default {
     // 登入
     const hanleLogin = () => {
       if (checkLogin({ account: loginForm.account, password: loginForm.password, otp: loginForm.otp, confirmOtp: otp.OTP })) {
-        callApi(login, loginForm, async (res) => {
+        callApi(login, loginForm, (res) => {
           store.commit('userModules/SET_USERSTATUS', res.data.Data)
-          await hanleRouterChange()
+          hanleRouterChange()
         })
       } else {
         ElMessage({
@@ -83,9 +84,7 @@ export default {
       }
     }
     const removeLogin = () => {
-      Object.keys(loginForm).forEach((item) => {
-        loginForm[item] = ''
-      })
+      resetForm(loginForm)
     }
     return {
       callOtp,
