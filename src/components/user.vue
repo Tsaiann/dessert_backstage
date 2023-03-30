@@ -145,29 +145,23 @@ export default {
       const data = { ID: id }
       callApi(memberDetailData, data, (res) => {
         state.memberDetailList = res.data.Data
-        const goodsList = [...JSON.parse(localStorage.getItem('goodsInfo'))]
-        if (state.memberDetailList.Favors !== undefined) {
-          state.memberfoversListLength = state.memberDetailList.Favors.length
-          for (let i in state.memberDetailList.Favors) {
-            for (let j in goodsList) {
-              if (state.memberDetailList.Favors[i].GoodsID == goodsList[j].ID) {
-                state.memberDetailList.Favors[i].Goods.Name = goodsList[j].Name
-                state.memberDetailList.Favors[i].Goods.GoodsType.Name = goodsList[j].GoodsType.Name
-              }
-            }
-          }
+        if (state.memberDetailList.Favors) {
+          memberFoverList()
         }
       })
     }
-    //前台顯示轉換
-    const changeShow = (data) => {
-      data.forEach((el) => {
-        if (el.Show === true) {
-          el.Show = '是'
-        } else {
-          el.Show = '否'
+    //獲得該會員的收藏清單
+    const memberFoverList = () => {
+      state.memberfoversListLength = state.memberDetailList.Favors.length
+      const goodsList = [...JSON.parse(localStorage.getItem('goodsInfo'))]
+      for (let item of state.memberDetailList.Favors) {
+        for (let j in goodsList) {
+          if (item.GoodsID == goodsList[j].ID) {
+            item.Goods.Name = goodsList[j].Name
+            item.Goods.GoodsType.Name = goodsList[j].GoodsType.Name
+          }
         }
-      })
+      }
     }
     //刪除會員資料
     const deleteUser = (obj) => {
@@ -191,27 +185,32 @@ export default {
       searchList.Page -= 1
       handleSearch()
     }
-    //搜尋指定商品
+    //改變頁碼 / 資料顯示數量
+    const specialSearch = () => {
+      oldSearchList = searchList
+      const data = oldSearchList
+      callApi(memberData, data, (res) => {
+        searchList.Page += 1
+        searchStatus.value = ''
+        state.userTableData = [...res.data.Data]
+        levelChange()
+      })
+    }
+    //搜尋指定條件
     const handleSearch = async () => {
       if (searchStatus.value === 'change') {
-        oldSearchList = searchList
-        const data = oldSearchList
-        callApi(memberData, data, (res) => {
-          searchList.Page += 1
-          searchStatus.value = ''
-          state.userTableData = [...res.data.Data]
-          changeShow(state.userTableData)
-        })
+        specialSearch()
       } else {
         searchList.Page -= 1
         const data = searchList
         callApi(memberData, data, (res) => {
           state.userTableData = [...res.data.Data]
-          changeShow(state.userTableData)
+          levelChange()
           searchList.Page += 1
         })
       }
     }
+
     // 權限表更新
     const permissionsUse = computed(() => {
       const permissions = JSON.parse(localStorage.getItem('userPermissions'))
@@ -222,17 +221,10 @@ export default {
     })
     //根據消費金額確認會員等級
     const levelChange = () => {
-      for (let i in state.userTableData) {
-        if (state.userTableData[i].Consumption < 5000) {
-          state.userTableData[i].level = '銅級會員'
-        } else if (state.userTableData[i].Consumption < 10000 && state.userTableData[i].Consumption >= 5000) {
-          state.userTableData[i].level = '銀級會員'
-        } else if (state.userTableData[i].Consumption < 20000 && state.userTableData[i].Consumption >= 10000) {
-          state.userTableData[i].level = '金級會員'
-        } else if (state.userTableData[i].Consumption >= 20000) {
-          state.userTableData[i].level = '白金會員'
-        }
-      }
+      state.userTableData.forEach((user) => {
+        const { Consumption } = user
+        user.level = Consumption < 5000 ? '銅級會員' : Consumption < 10000 ? '銀級會員' : Consumption < 20000 ? '金級會員' : '白金會員'
+      })
     }
     const reset = () => {
       getMemberData()
