@@ -27,11 +27,8 @@ export default {
       const permissions = JSON.parse(localStorage.getItem('userPermissions'))
       const list = Object.keys(permissions).filter((el) => permissions[el].Activity === true)
       state.routes = route.filter((item) => list.includes(item.meta.permissionId))
-      console.log(state.routes)
     })
-    const routerChange = (path) => {
-      router.push({ name: path })
-    }
+    const routerChange = (path) => router.push({ name: path })
     return {
       state,
       routerChange,

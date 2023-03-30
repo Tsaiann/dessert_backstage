@@ -53,7 +53,6 @@ export default {
       const id = store.state.userModules.userStatus.id
       const data = { MemberID: id }
       await callApi(getAdminPermissions, data, (res) => {
-        console.log(res)
         store.commit('userModules/SET_USERPERMISSIONS', res.data.Data.Permission)
       }).catch(() => {
         ElMessage({

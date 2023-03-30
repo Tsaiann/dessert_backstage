@@ -155,15 +155,13 @@ export default {
       } else if (value !== state.adminForm.pwd) {
         callback(new Error('密碼不一致，請再次輸入密碼'))
       } else if (value === state.adminForm.pwd) {
-        adminAddForm.value.validateField('confirmPwd', () => null)
-        callback()
+        adminAddForm.value.validateField('confirmPwd', () => callback())
       }
     }
     // 取得所有管理員資料
     const getAdminList = onMounted(async () => {
       await callApi(getAdminMembers, {}, (res) => {
         state.tableData = res.data.Data
-        console.log(state.tableData)
       })
     })
     // 新增管理員
@@ -220,7 +218,6 @@ export default {
     }
     // 打開權限設定表
     const openPermissions = async (obj) => {
-      console.log('open:', obj.ID)
       await createPermissionsList(obj)
       state.adminForm.id = obj.ID
       state.adminForm.account = obj.Account
@@ -274,7 +271,6 @@ export default {
     const closeDialog = () => {
       resetForm(state.adminForm)
       resetForm(state.permissions)
-      console.log(state.adminForm, state.permissions)
     }
     return {
       dialogAddVisible,
