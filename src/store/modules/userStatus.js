@@ -23,7 +23,6 @@ export const userModules = {
 
   mutations: {
     SET_USERSTATUS(state, payload) {
-      console.log('userStatus store', payload)
       state.userStatus.id = payload.Info.ID
       state.userStatus.account = payload.Info.Account
       state.userStatus.username = payload.Info.Name
@@ -36,7 +35,6 @@ export const userModules = {
     SET_USERPERMISSIONS(state, payload) {
       state.userPermissions = JSON.parse(JSON.stringify(payload))
       localStorage.setItem('userPermissions', JSON.stringify(payload))
-      console.log('user permissions:', state.userPermissions)
     },
     LOGOUT(state) {
       state.userStatus = {
