@@ -245,11 +245,8 @@ export default {
     //前台顯示轉換
     const changeShow = (data) => {
       data.forEach((el) => {
-        if (el.Show === true) {
-          el.Show = '是'
-        } else {
-          el.Show = '否'
-        }
+        if (el.Show === true) el.Show = '是'
+        else el.Show = '否'
       })
     }
     //刪除商品種類
@@ -290,11 +287,7 @@ export default {
       addGoodsForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
       addGoodsForm.UnitPrice = parseInt(addGoodsForm.UnitPrice)
       addGoodsForm.SpecsAllowance = addGoodsForm.SpecsAllowance * 1
-      if (addGoodsForm.display === '是') {
-        addGoodsForm.Show = true
-      } else {
-        addGoodsForm.Show = false
-      }
+      addGoodsForm.Show = addGoodsForm.display === '是' ? true : false
       const data = addGoodsForm
       callApi(addGoodsList, data, () => {
         getGoodsList()
@@ -357,10 +350,10 @@ export default {
       addGoodsForm.ID = obj.ID
       imgData.ident = obj.ImagesIdnet
       const imgArr = obj.ImageUrls
-      for (let i in imgArr) {
-        imgData.img = imgArr[i].Url
-        imgData.fileName = imgArr[i].Url
-        imgData.ID = imgArr[i].ID
+      for (let { Url, ID } of imgArr) {
+        imgData.img = Url
+        imgData.fileName = Url
+        imgData.ID = ID
         imgList.value.push(JSON.parse(JSON.stringify(imgData)))
         imgData.img = ''
         imgData.fileName = ''
@@ -376,11 +369,7 @@ export default {
       addGoodsForm.GoodsSpecs = addSpecsCount.concat(addSpecsList.list)
       addGoodsForm.UnitPrice = parseInt(addGoodsForm.UnitPrice)
       addGoodsForm.SpecsAllowance = addGoodsForm.SpecsAllowance * 1
-      if (addGoodsForm.display === '是') {
-        addGoodsForm.Show = true
-      } else {
-        addGoodsForm.Show = false
-      }
+      addGoodsForm.Show = addGoodsForm.display === '是' ? true : false
       const data = addGoodsForm
       callApi(updateProduct, data, () => {
         getGoodsList()
@@ -420,13 +409,12 @@ export default {
       } else {
         searchList.Page -= 1
         const data = searchList
-        const res = await productList(data)
-        if (res.data.Code === 200) {
+        callApi(productList, data, (res) => {
           tableData.value = [...res.data.Data]
           changeShow(tableData.value)
           tableDataTotal.value = tableData.value
           searchList.Page += 1
-        }
+        })
       }
     }
     //關閉彈窗時清除內容
@@ -484,7 +472,6 @@ export default {
         fetch(baseUrl + '/admin/image/c', options)
           .then((res) => res.json())
           .then((res) => {
-            console.log(res)
             imgData.img = res.Data.Url
             imgData.ID = res.Data.ID
             addGoodsForm.ImagesIdnet = imgData.ident

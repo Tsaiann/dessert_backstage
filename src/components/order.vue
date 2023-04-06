@@ -216,6 +216,13 @@ export default {
         label: '已出貨'
       }
     ]
+    //初始化一定會需要改變的事情(order / delivery / time)
+    const init = () => {
+      orderStage('init')
+      deliveryStage('init')
+      timeChange('timestamp')
+      orderTotal()
+    }
     //取得所有訂單資料
     const getOrderList = onMounted(() => {
       const params = {}
@@ -223,10 +230,7 @@ export default {
         state.allOrder = JSON.parse(JSON.stringify(res.data.Data)).reverse()
         let obj = res.data.Data.reverse()
         state.currentOrderList = [...obj.slice(0, 10)]
-        orderStage('init')
-        deliveryStage('init')
-        timeChange('timestamp')
-        orderTotal()
+        init()
         getOrderLength()
       })
     })
@@ -248,24 +252,13 @@ export default {
     const orderStage = (type) => {
       const caseObj = {
         init: () => {
-          for (let i in state.currentOrderList) {
-            if (state.currentOrderList[i].OrderStage == '1') {
-              state.currentOrderList[i].OrderStage = '已完成'
-            } else if (state.currentOrderList[i].OrderStage == '2') {
-              state.currentOrderList[i].OrderStage = '已取消'
-            } else {
-              state.currentOrderList[i].OrderStage = '未完成'
-            }
+          for (let item of state.currentOrderList) {
+            item.OrderStage = item.OrderStage == 1 ? '已完成' : item.OrderStage == 2 ? '已取消' : '未完成'
           }
         },
         final: () => {
-          if (state.currentOrder.OrderStage === '未完成') {
-            state.currentOrder.OrderStage = '0'
-          } else if (state.currentOrder.OrderStage === '已完成') {
-            state.currentOrder.OrderStage = '1'
-          } else if (state.currentOrder.OrderStage === '取消訂單') {
-            state.currentOrder.OrderStage = '2'
-          }
+          let orderStage = state.currentOrder.OrderStage
+          orderStage = orderStage === '未完成' ? '0' : orderStage === '已完成' ? '1' : '2'
         }
       }
       caseObj[type]()
@@ -274,20 +267,13 @@ export default {
     const deliveryStage = (type) => {
       const caseObj = {
         init: () => {
-          for (let i in state.currentOrderList) {
-            if (state.currentOrderList[i].DeliveryStage === '1') {
-              state.currentOrderList[i].DeliveryStage = '已出貨'
-            } else {
-              state.currentOrderList[i].DeliveryStage = '未出貨'
-            }
+          for (let item of state.currentOrderList) {
+            item.DeliveryStage = item.DeliveryStage === '1' ? '已出貨' : '未出貨'
           }
         },
         final: () => {
-          if (state.currentOrder.DeliveryStage === '未出貨') {
-            state.currentOrder.DeliveryStage = '0'
-          } else if (state.currentOrder.DeliveryStage === '已出貨') {
-            state.currentOrder.DeliveryStage = '1'
-          }
+          let deliveryStage = state.currentOrder.DeliveryStage
+          deliveryStage = deliveryStage === '未出貨' ? '0' : deliveryStage === '已出貨' ? '1' : null
         }
       }
       caseObj[type]()
@@ -329,9 +315,7 @@ export default {
       const data = { ID: obj.ID }
       callApi(getOrderDetail, data, (res) => {
         state.currentOrder = JSON.parse(JSON.stringify(res.data.Data))
-        if (state.currentOrder.Discounts.length === 0) {
-          state.orderForm.discount = '無'
-        }
+        if (state.currentOrder.Discounts.length === 0) state.orderForm.discount = '無'
         state.orderForm.goodsType = []
         state.orderForm.goods = []
         state.currentGoods = []
@@ -356,8 +340,8 @@ export default {
           }
         },
         edit: () => {
-          for (let i in state.currentOrder.OrderItem) {
-            deleteAdded(state.currentOrder.OrderItem[i])
+          for (let item of state.currentOrder.OrderItem) {
+            deleteAdded(item)
             orderState.value = ''
           }
         }
@@ -380,10 +364,10 @@ export default {
         } else {
           orderItem.allSpecs = JSON.parse(JSON.stringify(goodsList.GoodsSpecs.slice(1)))
           orderItem.limit = goodsList.GoodsSpecs[0].Specs
-          for (let i in orderItem.Specs) {
+          for (let item of orderItem.Specs) {
             for (let j in orderItem.allSpecs) {
-              if (orderItem.Specs[i].SpecID == orderItem.allSpecs[j].ID) {
-                orderItem.allSpecs[j].Num = orderItem.Specs[i].Num
+              if (item.SpecID == orderItem.allSpecs[j].ID) {
+                orderItem.allSpecs[j].Num = item.Num
               }
             }
           }
@@ -405,7 +389,6 @@ export default {
       if (index === null) {
         await callApi(productList, data, (res) => {
           state.currentGoods.push(res.data.Data)
-          console.log(state.currentGoods)
         })
       } else {
         await callApi(productList, data, (res) => {
@@ -417,12 +400,12 @@ export default {
     }
     // 更改原訂單中商品項目
     const changeGoods = (name, orderItem) => {
-      for (let i in goodsList) {
-        if (name === goodsList[i].Name) {
-          orderItem.GoodsID = goodsList[i].ID
-          orderItem.type = goodsList[i].GoodsTypeID
-          orderItem.TimestampPice = goodsList[i].UnitPrice
-          selectSpecs(goodsList[i], orderItem)
+      for (let item of goodsList) {
+        if (name === item.Name) {
+          orderItem.GoodsID = item.ID
+          orderItem.type = item.GoodsTypeID
+          orderItem.TimestampPice = item.UnitPrice
+          selectSpecs(item, orderItem)
         }
       }
     }
@@ -441,13 +424,11 @@ export default {
     //刪除原本的規格
     const deleteSpecs = (orderItem) => {
       if (orderItem.Specs.length > 1) {
-        let newArr = JSON.parse(JSON.stringify(orderItem.Specs))
-        let newSpecs = newArr.splice(1)
-        for (let i in newSpecs) {
-          if (newSpecs[i].ID == undefined) {
-            return
-          } else {
-            const data = { ID: newSpecs[i].ID }
+        let newSpecs = JSON.parse(JSON.stringify(orderItem.Specs)).splice(1)
+        for (let item of newSpecs) {
+          if (item.ID == undefined) return
+          else {
+            const data = { ID: item.ID }
             callApi(deleteGoodsSpecs, data, () => {})
           }
         }
@@ -456,17 +437,17 @@ export default {
     //驗證所輸入的規格是否符合限制（不可以超過原本限定的數量）
     const verifySpecs = (orderItem) => {
       let specsTotal = 0
-      for (let i in orderItem.allSpecs) {
-        if (orderItem.allSpecs[i].hasOwnProperty('Num') !== false && orderItem.allSpecs[i].Num != '') {
-          specsTotal += orderItem.allSpecs[i].Num
+      for (let item of orderItem.allSpecs) {
+        if (item.hasOwnProperty('Num') !== false && item.Num != '') {
+          specsTotal += item.Num
           if (specsTotal > orderItem.limit * 1) {
             orderState.value = 'error'
             confirmMessage(() => {})
             return
           } else {
             orderItem.Specs.push({
-              SpecID: orderItem.allSpecs[i].ID,
-              Num: orderItem.allSpecs[i].Num
+              SpecID: item.ID,
+              Num: item.Num
             })
           }
         }
@@ -513,22 +494,14 @@ export default {
     //搜尋指定商品
     const handleSearch = async (page, size) => {
       if (searchStatus.value === 'change') {
-        console.log(state.allOrder)
         let newOrderList = state.allOrder.slice((page - 1) * 10, (page - 1) * 10 + size)
         state.currentOrderList = [...newOrderList]
-        orderStage('init')
-        deliveryStage('init')
-        timeChange('timestamp')
-        orderTotal()
+        init()
         searchStatus.value = ''
       } else {
         state.searchList.Page = 1
-        if (timeValue.value[0] !== undefined) {
-          timeChange('after')
-        }
-        if (timeValue.value[1] !== undefined) {
-          timeChange('before')
-        }
+        if (timeValue.value[0] !== undefined) timeChange('after')
+        if (timeValue.value[1] !== undefined) timeChange('before')
         const data = {
           OrderStage: state.searchList.OrderStage,
           DeliveryStage: state.searchList.DeliveryStage,
@@ -539,10 +512,7 @@ export default {
           let obj = res.data.Data.reverse()
           state.currentOrderList = [...obj.slice(0, state.searchList.PageLimit)]
           state.orderTableLength = state.currentOrderList.length
-          orderStage('init')
-          deliveryStage('init')
-          timeChange('timestamp')
-          orderTotal()
+          init()
         })
       }
     }
@@ -556,11 +526,11 @@ export default {
     })
     // 計算總金額
     const orderTotal = () => {
-      for (let i in state.currentOrderList) {
+      for (let item of state.currentOrderList) {
         let total = 0
-        for (let j in state.currentOrderList[i].OrderItem) {
-          total += state.currentOrderList[i].OrderItem[j].Specs[0].Num * state.currentOrderList[i].OrderItem[j].TimestampPice
-          state.currentOrderList[i].total = total
+        for (let j in item.OrderItem) {
+          total += item.OrderItem[j].Specs[0].Num * item.OrderItem[j].TimestampPice
+          item.total = total
         }
       }
     }
